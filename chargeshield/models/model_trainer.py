@@ -179,20 +179,27 @@ class ChargeShieldModelTrainer:
         return p_xgb, s_iso, rule_penalties
 
     def predict_risk_score(self, df_raw: pd.DataFrame) -> np.ndarray:
-        """Computes composite 0-100 ChargeShield Risk Score."""
+        """Computes composite 0-100 ChargeShield Risk Score with adaptive zero-day weighting."""
         p_xgb, s_iso, s_rule = self.predict_components(df_raw)
-        # Calibrated weighted ensemble
-        composite = (0.72 * p_xgb) + (0.18 * s_iso) + (0.10 * s_rule)
+        # Dynamic Anomaly Scaling: Elevate Isolation Forest weighting on severe anomalies to catch zero-day attacks
+        iso_boost = np.where(s_iso > 0.70, 0.28, 0.18)
+        xgb_weight = 0.90 - iso_boost
+        composite = (xgb_weight * p_xgb) + (iso_boost * s_iso) + (0.10 * s_rule)
         risk_score = np.clip(composite * 100.0, 0.0, 100.0)
         return risk_score
 
     def predict_single(self, txn_dict: Dict[str, Any]) -> Dict[str, Any]:
-        """Performs real-time scoring and decision routing for a single transaction."""
+        """Performs real-time scoring and decision routing with trusted customer friction bypass."""
         df_single = pd.DataFrame([txn_dict])
         score = float(self.predict_risk_score(df_single)[0])
         p_xgb, s_iso, s_rule = self.predict_components(df_single)
 
-        decision = self.threshold_optimizer.get_decision_tier(score)
+        decision = self.threshold_optimizer.get_decision_tier(
+            risk_score=score,
+            user_account_age_days=int(txn_dict.get("user_account_age_days", 0) or 0),
+            user_order_index=int(txn_dict.get("user_order_index", 1) or 1),
+            has_delivery_pod=bool(txn_dict.get("delivery_status") == "DELIVERED_POD_CONFIRMED"),
+        )
         confidence = float(np.abs(score - 50.0) / 50.0)
 
         return {
@@ -204,6 +211,7 @@ class ChargeShieldModelTrainer:
             "settlement_hold": decision["settlement_hold"],
             "badge_color": decision["badge_color"],
             "action_description": decision["action_description"],
+            "friction_bypassed": decision.get("friction_bypassed", False),
             "confidence": round(confidence, 2),
             "components": {
                 "xgboost_prob": round(float(p_xgb[0]), 4),

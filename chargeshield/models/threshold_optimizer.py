@@ -155,16 +155,36 @@ class ThresholdOptimizer:
         }
         return self.threshold_profile
 
-    def get_decision_tier(self, risk_score: float) -> Dict[str, Any]:
-        """Maps a 0-100 ChargeShield Risk Score into an actionable defense decision."""
+    def get_decision_tier(
+        self,
+        risk_score: float,
+        user_account_age_days: int = 0,
+        user_order_index: int = 1,
+        has_delivery_pod: bool = False,
+    ) -> Dict[str, Any]:
+        """Maps a 0-100 ChargeShield Risk Score into an actionable defense decision with trusted buyer friction bypass."""
+        # 1. Check for Trusted Repeat Buyer Friction Bypass (Mitigates False Positive Working Capital Friction)
+        is_trusted_repeat = (user_account_age_days >= 120) and (user_order_index >= 3)
+        if is_trusted_repeat and has_delivery_pod and risk_score < 85:
+            return {
+                "tier": "TRUSTED_EXPEDITED",
+                "risk_label": "Expedited Safe (Trusted)",
+                "recommended_action": "APPROVE_EXPEDITED_SETTLEMENT",
+                "settlement_hold": False,
+                "badge_color": "#146C2E",  # Material Forest Green
+                "action_description": "Friction Bypassed: Established customer tenure and confirmed carrier AWB establish safe fulfillment under Visa CE 3.0.",
+                "friction_bypassed": True,
+            }
+
         if risk_score < self.tier_cutoffs["low_risk_max"]:
             return {
                 "tier": "LOW",
                 "risk_label": "Low Risk",
                 "recommended_action": "APPROVE_INSTANT_SETTLEMENT",
                 "settlement_hold": False,
-                "badge_color": "#10B981",  # Emerald Green
+                "badge_color": "#146C2E",  # Material Forest Green
                 "action_description": "Transaction verified safe. Route to instant settlement pipeline.",
+                "friction_bypassed": False,
             }
         elif risk_score <= self.tier_cutoffs["moderate_risk_max"]:
             return {
@@ -172,8 +192,9 @@ class ThresholdOptimizer:
                 "risk_label": "Moderate Risk",
                 "recommended_action": "STANDARD_T2_SETTLEMENT",
                 "settlement_hold": False,
-                "badge_color": "#F59E0B",  # Amber / Yellow
+                "badge_color": "#8F4E00",  # Material Warm Amber
                 "action_description": "Normal behavioral variance. Release under standard T+2 settlement cycle.",
+                "friction_bypassed": False,
             }
         elif risk_score <= self.tier_cutoffs["high_risk_max"]:
             return {
@@ -181,8 +202,9 @@ class ThresholdOptimizer:
                 "risk_label": "High Risk",
                 "recommended_action": "HOLD_SETTLEMENT_STEP_UP_AUTH",
                 "settlement_hold": True,
-                "badge_color": "#F97316",  # Orange
+                "badge_color": "#BA1A1A",  # Material Deep Red
                 "action_description": "Significant risk anomalies detected. Hold settlement pending merchant proof of delivery or step-up verification.",
+                "friction_bypassed": False,
             }
         else:
             return {
@@ -190,8 +212,9 @@ class ThresholdOptimizer:
                 "risk_label": "Critical Risk",
                 "recommended_action": "BLOCK_DEFENSE_DISPUTE_READY",
                 "settlement_hold": True,
-                "badge_color": "#EF4444",  # Crimson Red
+                "badge_color": "#BA1A1A",  # Material Deep Red
                 "action_description": "Severe fraud pattern detected. Intercept payout and auto-generate dispute evidence package.",
+                "friction_bypassed": False,
             }
 
     def save(self, filepath: Union[str, Path]) -> None:

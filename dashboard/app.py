@@ -565,10 +565,18 @@ elif selected_view == "02 // LIVE RISK INSPECTOR":
             inp_vpn = st.checkbox("Datacenter Proxy / VPN", value=bool(default_vpn))
             inp_emu = st.checkbox("Android Emulator Env", value=bool(default_emu))
             inp_root = st.checkbox("Rooted / Jailbroken OS", value=bool(default_root))
-            inp_dur = st.number_input("Session Time (sec)", min_value=1, max_value=3600, value=int(default_dur))
-            inp_chk = st.number_input("Checkout Speed (sec)", min_value=1, max_value=600, value=int(default_chk))
-            inp_typing = st.number_input("Typing Speed (WPM)", min_value=10, max_value=300, value=int(default_typing))
-            inp_mouse = st.slider("Mouse Movement Entropy", 0.0, 1.0, float(default_mouse))
+            headless_mode = st.toggle("Headless S2S Mode (No Client SDK)", value=False)
+            if not headless_mode:
+                inp_dur = st.number_input("Session Time (sec)", min_value=1, max_value=3600, value=int(default_dur))
+                inp_chk = st.number_input("Checkout Speed (sec)", min_value=1, max_value=600, value=int(default_chk))
+                inp_typing = st.number_input("Typing Speed (WPM)", min_value=10, max_value=300, value=int(default_typing))
+                inp_mouse = st.slider("Mouse Movement Entropy", 0.0, 1.0, float(default_mouse))
+            else:
+                inp_dur = 60
+                inp_chk = 20
+                inp_typing = 55
+                inp_mouse = 0.75
+                st.caption("🛡️ Headless API Fallback: Biometrics imputed with baseline medians.")
 
     active_txn = {
         "transaction_id": f"TXN_{preset[:9].replace(' ', '_')}_{int(inp_amount)}",
@@ -1213,3 +1221,54 @@ elif selected_view == "05 // MATHEMATICAL BENCHMARKS":
               </div>
             </div>
             """, unsafe_allow_html=True)
+
+        st.markdown("<div style='margin-bottom: 32px;'></div>", unsafe_allow_html=True)
+
+        # Section: Production Failure Modes & Self-Healing Architecture
+        st.markdown("<span class='md-chip'>05.4 // Production Edge-Case Resilience</span>", unsafe_allow_html=True)
+        st.markdown("<h2 style='color:#21005D !important; font-size:24px; font-weight:800; margin: 10px 0 14px 0;'>Production Failure Modes & Self-Healing Architecture</h2>", unsafe_allow_html=True)
+
+        st.markdown("""
+        <table class='md-table'>
+          <thead>
+            <tr>
+              <th>Potential Failure Vector</th>
+              <th>Underlying Root Cause</th>
+              <th>ChargeShield AI Self-Healing Mitigation</th>
+              <th>Operational Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>60-Day Label Latency Delay</strong></td>
+              <td>Chargeback notices take 30-90 days to arrive from banks.</td>
+              <td><strong>Decoupled Inference</strong>: Supervised XGBoost trains on 90-day matured cohorts; Unsupervised Isolation Forest handles unlabelled Day-0 stream.</td>
+              <td><span class='md-badge-safe'>ACTIVE • ZERO CONTAMINATION</span></td>
+            </tr>
+            <tr>
+              <td><strong>Headless API / Missing SDK Telemetry</strong></td>
+              <td>S2S or ERP orders lack browser typing & mouse biometrics.</td>
+              <td><strong>Graceful Imputation Fallback</strong>: XGBoost native branch routing switches to network ASN & velocity signals with median imputation.</td>
+              <td><span class='md-badge-safe'>ACTIVE • AUTO-FALLBACK</span></td>
+            </tr>
+            <tr>
+              <td><strong>False Positive Working Capital Friction</strong></td>
+              <td>Legitimate high-ticket loyal shoppers trigger payout holds.</td>
+              <td><strong>Trusted Customer Bypass</strong>: Accounts &gt; 120d with 3+ prior orders and confirmed AWB bypass holds under Visa CE 3.0 safe harbor.</td>
+              <td><span class='md-badge-safe'>ACTIVE • FRICTION BYPASS</span></td>
+            </tr>
+            <tr>
+              <td><strong>Residential Proxy Pool Rotation</strong></td>
+              <td>Adversaries spoof domestic residential ISPs (Jio, Airtel).</td>
+              <td><strong>Multi-Variate Correlation</strong>: IP-to-delivery Haversine mismatch and checkout urgency flags intercept fraud regardless of ISP.</td>
+              <td><span class='md-badge-safe'>ACTIVE • MULTI-SIGNAL</span></td>
+            </tr>
+            <tr>
+              <td><strong>First-Party Friendly Fraud</strong></td>
+              <td>Cardholder legitimately completes 2FA then falsely disputes.</td>
+              <td><strong>Dispute Auto-Responder</strong>: Compiles Visa CE 3.0 cryptographic CAVV logs, carrier AWB, and terms audit trail to reverse chargeback.</td>
+              <td><span class='md-badge-safe'>ACTIVE • CLOSED-LOOP</span></td>
+            </tr>
+          </tbody>
+        </table>
+        """, unsafe_allow_html=True)
