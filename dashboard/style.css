@@ -250,92 +250,25 @@ div[data-testid="stHorizontalBlock"] .stButton > button[kind="secondary"]:hover 
   transform: scale(0.98) !important;
 }
 
-/* High-Contrast Material You Floating Element Toolbar */
+/* Completely Hide Floating Dataframe Toolbars (Eliminate Square Glitches) */
 [data-testid="stElementToolbar"],
 [data-testid="stDataFrameToolbar"],
 div[class*="stDataFrameFloatingToolbar"],
 div[class*="elementToolbar"],
 div[class*="StyledDataFrameToolbar"],
-div[role="toolbar"] {
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  background: #FFFFFF !important;
-  background-color: #FFFFFF !important;
-  border: 1.5px solid #CAC4D0 !important;
-  border-radius: 9999px !important;
-  box-shadow: 0 4px 16px rgba(103, 80, 164, 0.18) !important;
-  padding: 2px 6px !important;
-  gap: 2px !important;
-  align-items: center !important;
-  z-index: 1000 !important;
-}
-
-/* Force ALL inner wrappers, divs, buttons, and spans inside the toolbar to be transparent, NOT dark! */
-[data-testid="stElementToolbar"] *,
-[data-testid="stDataFrameToolbar"] *,
-div[class*="stDataFrameFloatingToolbar"] *,
-div[class*="elementToolbar"] *,
-div[class*="StyledDataFrameToolbar"] * {
-  background: transparent !important;
-  background-color: transparent !important;
-  box-shadow: none !important;
-}
-
-/* Individual toolbar action buttons */
-[data-testid="stElementToolbar"] button,
-[data-testid="stDataFrameToolbar"] button,
-[data-testid="stElementToolbar"] [data-baseweb="button"],
-[data-testid="stDataFrameToolbar"] [data-baseweb="button"],
-div[class*="elementToolbar"] button,
-div[data-testid="stElementToolbarButton"] button {
-  background: transparent !important;
-  background-color: transparent !important;
+div[role="toolbar"],
+div[data-testid="stElementToolbarButton"],
+[data-testid="stToolbarActions"],
+.modebar, .modebar-container, div.js-plotly-plot .plotly .modebar {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  height: 0px !important;
+  width: 0px !important;
+  margin: 0 !important;
+  padding: 0 !important;
   border: none !important;
-  border-radius: 9999px !important;
-  padding: 6px 8px !important;
-  color: #1C1B1F !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  transition: all 150ms ease !important;
-  box-shadow: none !important;
-}
-
-[data-testid="stElementToolbar"] button:hover,
-[data-testid="stDataFrameToolbar"] button:hover,
-[data-testid="stElementToolbar"] [data-baseweb="button"]:hover,
-[data-testid="stDataFrameToolbar"] [data-baseweb="button"]:hover,
-div[class*="elementToolbar"] button:hover {
-  background: #EADDFF !important;
-  background-color: #EADDFF !important;
-  color: #21005D !important;
-}
-
-/* All SVGs, Paths, and Shapes inside the toolbar MUST be high-contrast purple/black */
-[data-testid="stElementToolbar"] svg,
-[data-testid="stDataFrameToolbar"] svg,
-div[class*="elementToolbar"] svg,
-[data-testid="stElementToolbar"] svg *,
-[data-testid="stDataFrameToolbar"] svg * {
-  fill: #1C1B1F !important;
-  stroke: #1C1B1F !important;
-  color: #1C1B1F !important;
-  width: 16px !important;
-  height: 16px !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-[data-testid="stElementToolbar"] button:hover svg,
-[data-testid="stDataFrameToolbar"] button:hover svg,
-[data-testid="stElementToolbar"] button:hover svg *,
-[data-testid="stDataFrameToolbar"] button:hover svg * {
-  fill: #6750A4 !important;
-  stroke: #6750A4 !important;
-  color: #6750A4 !important;
 }
 
 /* Hero Banner Container */
