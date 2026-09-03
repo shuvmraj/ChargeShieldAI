@@ -81,14 +81,38 @@ header[data-testid="stHeader"] {
   display: none !important;
 }
 
-/* Global Reset */
+/* Global Reset & Strict High-Contrast Typography */
 html, body, [class*="css"], .stApp {
   background-color: var(--md-sys-color-background) !important;
-  color: var(--md-sys-color-on-background) !important;
+  color: #1C1B1F !important;
   font-family: var(--md-font-sans) !important;
   font-size: 16px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Ensure all headings are crisp near-black */
+h1, h2, h3, h4, h5, h6,
+.stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4,
+[data-testid="stMarkdownContainer"] h1,
+[data-testid="stMarkdownContainer"] h2,
+[data-testid="stMarkdownContainer"] h3,
+[data-testid="stMarkdownContainer"] h4 {
+  color: #1C1B1F !important;
+  font-family: var(--md-font-sans) !important;
+  font-weight: 700 !important;
+}
+
+h2, [data-testid="stMarkdownContainer"] h2 {
+  font-size: 26px !important;
+  color: #21005D !important;
+  margin-top: 16px !important;
+  margin-bottom: 16px !important;
+  font-weight: 800 !important;
+}
+
+p, span, div, li, [data-testid="stMarkdownContainer"] p {
+  color: #1C1B1F;
 }
 
 /* Atmospheric Layered Background */
@@ -107,21 +131,6 @@ html, body, [class*="css"], .stApp {
   padding-bottom: 5rem !important;
   padding-left: 2rem !important;
   padding-right: 2rem !important;
-}
-
-/* Material You Top Navbar Bar */
-.md-navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(243, 237, 247, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  padding: 12px 24px;
-  border-radius: var(--md-radius-full);
-  margin-bottom: 24px;
-  border: 1px solid rgba(121, 116, 126, 0.15);
-  box-shadow: 0 2px 12px rgba(103, 80, 164, 0.06);
 }
 
 /* Navigation Pill Buttons inside Streamlit */
@@ -149,7 +158,7 @@ div[data-testid="stHorizontalBlock"] .stButton > button[kind="secondary"] {
   border: none !important;
   font-family: var(--md-font-sans) !important;
   font-size: 13px !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
   letter-spacing: 0.01em !important;
   padding: 8px 18px !important;
   height: 42px !important;
@@ -169,6 +178,44 @@ div[data-testid="stHorizontalBlock"] .stButton > button[kind="secondary"]:hover 
   transform: scale(0.96) !important;
 }
 
+/* Download Buttons - Material You Primary Purple Pills */
+.stDownloadButton, [data-testid="stDownloadButton"] {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.stDownloadButton > button, 
+[data-testid="stDownloadButton"] > button {
+  background: var(--md-sys-color-primary) !important;
+  color: #FFFFFF !important;
+  border-radius: var(--md-radius-full) !important;
+  border: none !important;
+  font-family: var(--md-font-sans) !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  padding: 10px 22px !important;
+  height: 42px !important;
+  width: 100% !important;
+  transition: all var(--md-duration) var(--md-easing) !important;
+  box-shadow: 0 4px 12px rgba(103, 80, 164, 0.25) !important;
+  text-align: center !important;
+}
+
+.stDownloadButton > button:hover, 
+[data-testid="stDownloadButton"] > button:hover {
+  background: #503C80 !important;
+  color: #FFFFFF !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(103, 80, 164, 0.35) !important;
+}
+
+.stDownloadButton > button:active,
+[data-testid="stDownloadButton"] > button:active {
+  transform: scale(0.96) !important;
+}
+
 /* Hero Banner Container */
 .md-hero-container {
   background: linear-gradient(135deg, #F3EDF7 0%, #EADDFF 100%);
@@ -184,7 +231,7 @@ div[data-testid="stHorizontalBlock"] .stButton > button[kind="secondary"]:hover 
   font-family: var(--md-font-sans);
   font-size: 3.0rem;
   font-weight: 900;
-  color: #21005D;
+  color: #21005D !important;
   line-height: 1.1;
   letter-spacing: -0.02em;
   margin-bottom: 12px;
@@ -202,7 +249,7 @@ div[data-testid="stHorizontalBlock"] .stButton > button[kind="secondary"]:hover 
 
 .md-hero-sub {
   font-size: 1.1rem;
-  color: #49454F;
+  color: #49454F !important;
   max-width: 780px;
   line-height: 1.6;
 }
@@ -213,18 +260,18 @@ div[data-testid="stHorizontalBlock"] .stButton > button[kind="secondary"]:hover 
   align-items: center;
   gap: 6px;
   background: var(--md-sys-color-secondary-container);
-  color: var(--md-sys-color-on-secondary-container);
+  color: var(--md-sys-color-on-secondary-container) !important;
   padding: 6px 14px;
   border-radius: var(--md-radius-full);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.02em;
   margin-bottom: 12px;
 }
 
 .md-chip-primary {
   background: var(--md-sys-color-primary-container);
-  color: var(--md-sys-color-on-primary-container);
+  color: var(--md-sys-color-on-primary-container) !important;
   font-weight: 700;
 }
 
@@ -263,7 +310,7 @@ div[data-testid="stHorizontalBlock"] .stButton > button[kind="secondary"]:hover 
 
 .md-metric-label {
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--md-sys-color-on-surface-variant);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -299,7 +346,7 @@ div[data-testid="stHorizontalBlock"] .stButton > button[kind="secondary"]:hover 
 /* Status Badges */
 .md-badge-safe {
   background: var(--md-status-safe-container);
-  color: var(--md-status-safe-on-container);
+  color: var(--md-status-safe-on-container) !important;
   padding: 6px 14px;
   border-radius: var(--md-radius-full);
   font-size: 12px;
@@ -309,7 +356,7 @@ div[data-testid="stHorizontalBlock"] .stButton > button[kind="secondary"]:hover 
 
 .md-badge-warn {
   background: var(--md-status-warn-container);
-  color: var(--md-status-warn-on-container);
+  color: var(--md-status-warn-on-container) !important;
   padding: 6px 14px;
   border-radius: var(--md-radius-full);
   font-size: 12px;
@@ -319,7 +366,7 @@ div[data-testid="stHorizontalBlock"] .stButton > button[kind="secondary"]:hover 
 
 .md-badge-critical {
   background: var(--md-sys-color-error-container);
-  color: var(--md-sys-color-on-error-container);
+  color: var(--md-sys-color-on-error-container) !important;
   padding: 6px 14px;
   border-radius: var(--md-radius-full);
   font-size: 12px;
@@ -383,7 +430,7 @@ label,
   color: var(--md-sys-color-on-surface-variant) !important;
   font-family: var(--md-font-sans) !important;
   font-size: 13px !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
   margin-bottom: 4px !important;
 }
 
@@ -391,7 +438,7 @@ input, textarea, select,
 [data-baseweb="input"] input,
 [data-baseweb="select"] div {
   background-color: transparent !important;
-  color: var(--md-sys-color-on-surface) !important;
+  color: #1C1B1F !important;
   font-family: var(--md-font-sans) !important;
   font-size: 14px !important;
 }
@@ -431,7 +478,7 @@ li[role="option"] {
 li[role="option"]:hover, li[role="option"][aria-selected="true"] {
   background-color: var(--md-sys-color-primary-container) !important;
   color: var(--md-sys-color-on-primary-container) !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
 }
 
 /* Comparison Table */
@@ -447,7 +494,7 @@ li[role="option"]:hover, li[role="option"][aria-selected="true"] {
 
 .md-table th {
   background: var(--md-sys-color-primary-container);
-  color: var(--md-sys-color-on-primary-container);
+  color: var(--md-sys-color-on-primary-container) !important;
   padding: 14px 18px;
   text-align: left;
   font-size: 13px;
@@ -459,7 +506,7 @@ li[role="option"]:hover, li[role="option"][aria-selected="true"] {
   padding: 14px 18px;
   border-top: 1px solid var(--md-sys-color-outline-variant);
   background: var(--md-sys-color-surface);
-  color: var(--md-sys-color-on-surface);
+  color: #1C1B1F !important;
   font-size: 14px;
 }
 

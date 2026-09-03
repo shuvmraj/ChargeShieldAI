@@ -268,93 +268,365 @@ class DisputeEvidenceGenerator:
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>ChargeShield AI - Dispute Evidence Packet ({packet['dispute_id']})</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChargeShield AI — Dispute Evidence Dossier ({packet['dispute_id']})</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-  body {{ font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif; background-color: #FFFBFE; color: #1C1B1F; margin: 0; padding: 24px; line-height: 1.55; }}
-  .packet-container {{ max-width: 960px; margin: 0 auto; background: #FFFFFF; border: 1px solid #CAC4D0; border-radius: 24px; padding: 32px; box-shadow: 0 4px 20px rgba(103, 80, 164, 0.08); }}
-  .header {{ display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #E7E0EC; padding-bottom: 20px; margin-bottom: 24px; }}
-  .header h1 {{ margin: 0 0 6px 0; font-size: 22px; color: #6750A4; font-weight: 700; letter-spacing: -0.01em; }}
-  .header .meta {{ color: #49454F; font-size: 13px; }}
-  .readiness-box {{ background: #F3EDF7; border: 1px solid #E7E0EC; border-radius: 16px; padding: 12px 24px; text-align: center; }}
-  .readiness-score {{ font-size: 32px; font-weight: 900; color: #6750A4; line-height: 1.1; }}
-  .badge {{ display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 700; background: {badge_bg}; color: {badge_text}; margin-top: 4px; }}
-  .section-title {{ font-size: 15px; font-weight: 700; color: #1C1B1F; text-transform: uppercase; letter-spacing: 0.04em; margin: 24px 0 12px 0; border-left: 4px solid #6750A4; padding-left: 10px; }}
-  .grid-2 {{ display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }}
-  .grid-3 {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }}
-  .card {{ background: #F7F2FA; border: 1px solid #E7E0EC; border-radius: 16px; padding: 14px 18px; }}
-  .card-label {{ font-size: 11px; text-transform: uppercase; color: #49454F; margin-bottom: 4px; font-weight: 600; letter-spacing: 0.03em; }}
-  .card-val {{ font-size: 14px; font-weight: 600; color: #1C1B1F; word-break: break-all; }}
-  .highlight-box {{ background: #EADDFF; border: 1px solid #D0BCFF; border-radius: 18px; padding: 20px; margin: 20px 0; color: #21005D; }}
-  .highlight-title {{ font-weight: 700; color: #21005D; margin-bottom: 6px; font-size: 16px; }}
-  .footer {{ margin-top: 32px; padding-top: 16px; border-top: 1px solid #E7E0EC; font-size: 12px; color: #79747E; text-align: center; }}
+  * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+  body {{
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: #FFFBFE;
+    color: #1C1B1F;
+    padding: 32px 24px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }}
+  .dossier-wrapper {{
+    max-width: 980px;
+    margin: 0 auto;
+    background: #FFFFFF;
+    border: 1px solid #CAC4D0;
+    border-radius: 28px;
+    padding: 36px 40px;
+    box-shadow: 0 4px 24px rgba(103, 80, 164, 0.08);
+  }}
+  .header-row {{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #E7E0EC;
+    padding-bottom: 24px;
+    margin-bottom: 28px;
+  }}
+  .brand-area {{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }}
+  .brand-icon {{
+    background: #6750A4;
+    color: #FFFFFF;
+    width: 44px;
+    height: 44px;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(103, 80, 164, 0.3);
+  }}
+  .dossier-title {{
+    font-size: 22px;
+    font-weight: 900;
+    color: #21005D;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }}
+  .dossier-sub {{
+    font-size: 12px;
+    color: #49454F;
+    font-weight: 500;
+    margin-top: 4px;
+  }}
+  .readiness-card {{
+    background: #F3EDF7;
+    border: 1px solid #E7E0EC;
+    border-radius: 20px;
+    padding: 14px 24px;
+    text-align: center;
+    min-width: 170px;
+  }}
+  .readiness-num {{
+    font-size: 34px;
+    font-weight: 900;
+    color: #6750A4;
+    line-height: 1;
+    margin: 2px 0 6px 0;
+  }}
+  .badge-tier {{
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    background: {badge_bg};
+    color: {badge_text};
+  }}
+  .legal-stance-banner {{
+    background: linear-gradient(135deg, #F3EDF7 0%, #EADDFF 100%);
+    border: 1px solid #D0BCFF;
+    border-radius: 20px;
+    padding: 22px 28px;
+    margin-bottom: 28px;
+    color: #21005D;
+  }}
+  .legal-stance-title {{
+    font-size: 16px;
+    font-weight: 700;
+    color: #21005D;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }}
+  .legal-rule {{
+    font-size: 12px;
+    font-weight: 600;
+    color: #381E72;
+    margin-bottom: 10px;
+  }}
+  .legal-body {{
+    font-size: 13px;
+    color: #21005D;
+    line-height: 1.6;
+  }}
+  .section-heading {{
+    font-size: 14px;
+    font-weight: 700;
+    color: #1C1B1F;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 28px 0 14px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }}
+  .section-pill {{
+    background: #6750A4;
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 9999px;
+  }}
+  .grid-3 {{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 14px;
+  }}
+  .grid-2 {{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 14px;
+  }}
+  .info-box {{
+    background: #F7F2FA;
+    border: 1px solid #E7E0EC;
+    border-radius: 16px;
+    padding: 14px 18px;
+    transition: background 150ms ease;
+  }}
+  .info-box:hover {{
+    background: #F3EDF7;
+  }}
+  .info-label {{
+    font-size: 11px;
+    font-weight: 600;
+    color: #49454F;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }}
+  .info-val {{
+    font-size: 14px;
+    font-weight: 600;
+    color: #1C1B1F;
+    word-break: break-word;
+  }}
+  .info-val-highlight {{
+    font-size: 18px;
+    font-weight: 900;
+    color: #146C2E;
+  }}
+  .info-val-error {{
+    color: #BA1A1A;
+    font-weight: 700;
+  }}
+  .audit-card {{
+    background: #F7F2FA;
+    border: 1px solid #E7E0EC;
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-top: 10px;
+  }}
+  .footer-audit {{
+    margin-top: 36px;
+    padding-top: 20px;
+    border-top: 1px solid #E7E0EC;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: #79747E;
+  }}
+  .signature-badge {{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #C4EED0;
+    color: #00210B;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 9999px;
+  }}
 </style>
 </head>
 <body>
-<div class="packet-container">
-  <div class="header">
-    <div>
-      <h1>🛡️ ChargeShield AI: Dispute Evidence Packet</h1>
-      <div class="meta">Case ID: <strong>{packet['dispute_id']}</strong> | Transaction: <strong>{s['transaction_id']}</strong></div>
-      <div class="meta">Generated: {packet['packet_generated_at']} | Network: ChargeShield AI Autonomous Risk Network</div>
+<div class="dossier-wrapper">
+  
+  <!-- Header -->
+  <div class="header-row">
+    <div class="brand-area">
+      <div class="brand-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+      </div>
+      <div>
+        <div class="dossier-title">ChargeShield AI — Dispute Evidence Dossier</div>
+        <div class="dossier-sub">Case ID: <strong style="color:#1C1B1F;">{packet['dispute_id']}</strong> • Txn Ref: <strong style="color:#1C1B1F;">{s['transaction_id']}</strong> • Generated: {packet['packet_generated_at']}</div>
+      </div>
     </div>
-    <div class="readiness-box">
-      <div class="card-label">Case Readiness</div>
-      <div class="readiness-score">{score}%</div>
-      <span class="badge">{tier} DEFENSE</span>
+    <div class="readiness-card">
+      <div class="info-label">Case Readiness</div>
+      <div class="readiness-num">{score}%</div>
+      <span class="badge-tier">{tier} DEFENSE</span>
     </div>
   </div>
 
-  <div class="highlight-box">
-    <div class="highlight-title">⚖️ Recommended Representment Stance: {stance['stance_title']}</div>
-    <div style="font-size: 13px; color: #381E72; margin-bottom: 8px;"><strong>Governing Rule:</strong> {stance['compelling_evidence_rule']}</div>
-    <div style="font-size: 13px; color: #21005D; line-height: 1.6;">{stance['core_argument']}</div>
+  <!-- Legal Stance Banner -->
+  <div class="legal-stance-banner">
+    <div class="legal-stance-title">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#21005D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>
+      <span>Recommended Representment Stance: {stance['stance_title']}</span>
+    </div>
+    <div class="legal-rule">Governing Rule: {stance['compelling_evidence_rule']}</div>
+    <div class="legal-body">{stance['core_argument']}</div>
   </div>
 
-  <div class="section-title">1. Transaction & Dispute Summary</div>
+  <!-- 1. Transaction & Dispute Summary -->
+  <div class="section-heading">
+    <span class="section-pill">01</span>
+    <span>Transaction & Dispute Summary</span>
+  </div>
   <div class="grid-3">
-    <div class="card"><div class="card-label">Disputed Amount</div><div class="card-val" style="color: #146C2E; font-size: 18px;">₹{s['amount_inr']:,.2f}</div></div>
-    <div class="card"><div class="card-label">Payment Method</div><div class="card-val">{s['payment_method']} ({s['card_network']})</div></div>
-    <div class="card"><div class="card-label">RRN / UTR</div><div class="card-val">{s['rrn_utr']}</div></div>
-    <div class="card"><div class="card-label">Merchant Name</div><div class="card-val">{s['merchant_name']} ({s['merchant_category']})</div></div>
-    <div class="card"><div class="card-label">Customer ID</div><div class="card-val">{s['customer_user_id']}</div></div>
-    <div class="card"><div class="card-label">Dispute Reason</div><div class="card-val" style="color: #BA1A1A;">{c['dispute_reason']}</div></div>
+    <div class="info-box">
+      <div class="info-label">Disputed Amount</div>
+      <div class="info-val-highlight">₹{s['amount_inr']:,.2f}</div>
+    </div>
+    <div class="info-box">
+      <div class="info-label">Payment Instrument</div>
+      <div class="info-val">{s['payment_method'].upper()} ({s['card_network']})</div>
+    </div>
+    <div class="info-box">
+      <div class="info-label">RRN / UTR Trace</div>
+      <div class="info-val">{s['rrn_utr']}</div>
+    </div>
+    <div class="info-box">
+      <div class="info-label">Merchant Store</div>
+      <div class="info-val">{s['merchant_name']}</div>
+    </div>
+    <div class="info-box">
+      <div class="info-label">Customer ID</div>
+      <div class="info-val">{s['customer_user_id']}</div>
+    </div>
+    <div class="info-box">
+      <div class="info-label">Dispute Reason</div>
+      <div class="info-val-error">{c['dispute_reason']}</div>
+    </div>
   </div>
 
-  <div class="section-title">2. Cryptographic Authentication & Liability Shift</div>
+  <!-- 2. Cryptographic Authentication & Liability Shift -->
+  <div class="section-heading">
+    <span class="section-pill">02</span>
+    <span>Cryptographic Authentication & Liability Shift</span>
+  </div>
   <div class="grid-2">
-    <div class="card"><div class="card-label">Authentication Protocol</div><div class="card-val">{a['auth_protocol']}</div></div>
-    <div class="card"><div class="card-label">Card Network Liability Shift</div><div class="card-val" style="color: #6750A4;">{a['liability_shift_status']}</div></div>
+    <div class="info-box">
+      <div class="info-label">Authentication Protocol</div>
+      <div class="info-val">{a['auth_protocol']}</div>
+    </div>
+    <div class="info-box">
+      <div class="info-label">Card Scheme Liability Shift</div>
+      <div class="info-val" style="color:#6750A4;">{a['liability_shift_status']}</div>
+    </div>
   </div>
 
-  <div class="section-title">3. Forensic Telemetry & IP-Geo Match</div>
+  <!-- 3. Forensic Telemetry & IP-Geo Match -->
+  <div class="section-heading">
+    <span class="section-pill">03</span>
+    <span>Forensic Telemetry & IP-Geo Match</span>
+  </div>
   <div class="grid-3">
-    <div class="card"><div class="card-label">Customer IP Address</div><div class="card-val">{t['ip_address']} ({t['isp_name']})</div></div>
-    <div class="card"><div class="card-label">IP Geolocation</div><div class="card-val">{t['ip_geographic_location']}</div></div>
-    <div class="card"><div class="card-label">Destination Address</div><div class="card-val">{t['destination_shipping_address']}</div></div>
-    <div class="card"><div class="card-label">IP-Geo Alignment</div><div class="card-val" style="color: {'#146C2E' if 'MATCH' in t['ip_to_delivery_geo_match'] else '#8F4E00'};">{t['ip_to_delivery_geo_match']}</div></div>
-    <div class="card"><div class="card-label">Device Fingerprint</div><div class="card-val">{t['device_id_fingerprint']}</div></div>
-    <div class="card"><div class="card-label">Session Duration</div><div class="card-val">{t['session_duration_seconds']}s (Natural human interaction)</div></div>
+    <div class="info-box">
+      <div class="info-label">Customer IP Address</div>
+      <div class="info-val">{t['ip_address']} ({t['isp_name']})</div>
+    </div>
+    <div class="info-box">
+      <div class="info-label">IP Geolocation</div>
+      <div class="info-val">{t['ip_geographic_location']}</div>
+    </div>
+    <div class="info-box">
+      <div class="info-label">Delivery Destination</div>
+      <div class="info-val">{t['destination_shipping_address']}</div>
+    </div>
+    <div class="info-box">
+      <div class="info-label">IP-Geo Alignment</div>
+      <div class="info-val" style="color:{'#146C2E' if 'MATCH' in t['ip_to_delivery_geo_match'] else '#8F4E00'}; font-weight:700;">{t['ip_to_delivery_geo_match']}</div>
+    </div>
+    <div class="info-box">
+      <div class="info-label">Device Fingerprint</div>
+      <div class="info-val" style="font-family:'JetBrains Mono', monospace; font-size:12px;">{t['device_id_fingerprint']}</div>
+    </div>
+    <div class="info-box">
+      <div class="info-label">Session Duration</div>
+      <div class="info-val">{t['session_duration_seconds']}s (Organic Human Speed)</div>
+    </div>
   </div>
 
-  <div class="section-title">4. Fulfillment & Proof of Delivery (POD)</div>
+  <!-- 4. Fulfillment & Proof of Delivery -->
+  <div class="section-heading">
+    <span class="section-pill">04</span>
+    <span>Fulfillment & Proof of Delivery (POD)</span>
+  </div>
   <div class="grid-3">
-    <div class="card"><div class="card-label">Courier Partner</div><div class="card-val">{f['carrier_partner']}</div></div>
-    <div class="card"><div class="card-label">Air Waybill (AWB) Tracking</div><div class="card-val">{f['tracking_awb']}</div></div>
-    <div class="card"><div class="card-label">Delivery Status</div><div class="card-val" style="color: #146C2E;">{f['delivery_status']}</div></div>
+    <div class="info-box">
+      <div class="info-label">Logistics Courier</div>
+      <div class="info-val">{f['carrier_partner']}</div>
+    </div>
+    <div class="info-box">
+      <div class="info-label">Air Waybill (AWB)</div>
+      <div class="info-val" style="font-family:'JetBrains Mono', monospace;">{f['tracking_awb']}</div>
+    </div>
+    <div class="info-box">
+      <div class="info-label">Carrier Status</div>
+      <div class="info-val" style="color:#146C2E; font-weight:700;">{f['delivery_status']}</div>
+    </div>
   </div>
 
-  <div class="section-title">5. Merchant Policy Acceptance Audit Trail</div>
-  <div class="card">
-    <div class="card-label">Terms Accepted Timestamp</div>
-    <div class="card-val" style="margin-bottom: 8px;">{p['terms_accepted_timestamp']} (Version {p['terms_of_service_version']})</div>
-    <div class="card-label">Policy Clause</div>
-    <div style="font-size: 12px; color: #49454F;">{p['refund_cancellation_policy_clause']}</div>
+  <!-- 5. Merchant Policy Acceptance -->
+  <div class="section-heading">
+    <span class="section-pill">05</span>
+    <span>Merchant Policy Acceptance Audit Trail</span>
+  </div>
+  <div class="audit-card">
+    <div class="info-label">Explicit Terms Acceptance Timestamp</div>
+    <div class="info-val" style="margin-bottom:8px;">{p['terms_accepted_timestamp']} (Terms Version {p['terms_of_service_version']})</div>
+    <div class="info-label">Accepted Refund & Cancellation Clause</div>
+    <div style="font-size:12px; color:#49454F; line-height:1.6; margin-top:4px;">{p['refund_cancellation_policy_clause']}</div>
   </div>
 
-  <div class="footer">
-    Compiled by ChargeShield AI Arbitration Engine • Autonomous Dispute Defense Architecture
+  <!-- Footer -->
+  <div class="footer-audit">
+    <div>Compiled by ChargeShield AI Arbitration Engine • Digital Evidence Package</div>
+    <div class="signature-badge">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00210B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <span>Cryptographically Sealed</span>
+    </div>
   </div>
+
 </div>
 </body>
 </html>"""

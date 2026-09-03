@@ -235,7 +235,7 @@ if selected_view == "01 // HOME & OVERVIEW":
 
     # Section: How To Use It (3 Simple Steps)
     st.markdown("<span class='md-chip'>01.2 // Operational Workflow</span>", unsafe_allow_html=True)
-    st.markdown("<h2>How To Use ChargeShield AI</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color:#21005D !important; font-size:26px; font-weight:800; margin: 12px 0 16px 0;'>How To Use ChargeShield AI</h2>", unsafe_allow_html=True)
 
     u1, u2, u3 = st.columns(3)
     with u1:
@@ -306,7 +306,7 @@ curl -X POST "http://localhost:8000/predict" \\
 
     # Section: How It Is Different (Comparison Table)
     st.markdown("<span class='md-chip'>01.3 // Differentiation Matrix</span>", unsafe_allow_html=True)
-    st.markdown("<h2>How ChargeShield Compares</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color:#21005D !important; font-size:26px; font-weight:800; margin: 12px 0 16px 0;'>How ChargeShield Compares</h2>", unsafe_allow_html=True)
 
     st.markdown("""
     <table class='md-table'>
@@ -363,7 +363,7 @@ curl -X POST "http://localhost:8000/predict" \\
 
     # Section: Enterprise Implementation Plan
     st.markdown("<span class='md-chip'>01.4 // Rollout Roadmap</span>", unsafe_allow_html=True)
-    st.markdown("<h2>4-Phase Enterprise Implementation Plan</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color:#21005D !important; font-size:26px; font-weight:800; margin: 12px 0 16px 0;'>4-Phase Enterprise Implementation Plan</h2>", unsafe_allow_html=True)
 
     r1, r2 = st.columns(2)
     with r1:
@@ -764,21 +764,23 @@ elif selected_view == "04 // DISPUTE ARBITRATION STUDIO":
 
         with d3:
             st.download_button(
-                "DOWNLOAD DOSSIER (HTML)",
+                "📄 Download Dossier (HTML)",
                 data=html_packet,
                 file_name=f"chargeshield_dossier_{packet['dispute_id']}.html",
                 mime="text/html",
+                use_container_width=True,
             )
             st.download_button(
-                "EXPORT JSON PAYLOAD",
+                "📦 Export JSON Payload",
                 data=json.dumps(packet, indent=2),
                 file_name=f"chargeshield_dossier_{packet['dispute_id']}.json",
                 mime="application/json",
+                use_container_width=True,
             )
 
         st.markdown("<div style='margin-bottom: 24px;'></div>", unsafe_allow_html=True)
         st.markdown(f"<span class='md-chip'>{icon_svg('file_text', 14, '#49454F')} Official Evidence Dossier Preview</span>", unsafe_allow_html=True)
-        st.components.v1.html(html_packet, height=650, scrolling=True)
+        st.components.v1.html(html_packet, height=800, scrolling=True)
 
 
 # =============================================================================
