@@ -261,7 +261,8 @@ class DisputeEvidenceGenerator:
         score = packet["case_readiness_score"]
         tier = packet["case_readiness_tier"]
 
-        badge_color = "#10B981" if tier == "STRONG" else ("#F59E0B" if tier == "MODERATE" else "#EF4444")
+        badge_bg = "#C4EED0" if tier == "STRONG" else ("#FFDCC2" if tier == "MODERATE" else "#FFDAD6")
+        badge_text = "#00210B" if tier == "STRONG" else ("#2E1500" if tier == "MODERATE" else "#410002")
 
         html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -269,23 +270,24 @@ class DisputeEvidenceGenerator:
 <meta charset="UTF-8">
 <title>ChargeShield AI - Dispute Evidence Packet ({packet['dispute_id']})</title>
 <style>
-  body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0B0F19; color: #E2E8F0; margin: 0; padding: 24px; line-height: 1.5; }}
-  .packet-container {{ max-width: 960px; margin: 0 auto; background: #111827; border: 1px solid #1F2937; border-radius: 12px; padding: 32px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }}
-  .header {{ display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #374151; padding-bottom: 20px; margin-bottom: 24px; }}
-  .header h1 {{ margin: 0 0 6px 0; font-size: 24px; color: #60A5FA; letter-spacing: -0.5px; }}
-  .header .meta {{ color: #9CA3AF; font-size: 13px; }}
-  .readiness-box {{ background: #1E293B; border: 1px solid #334155; border-radius: 8px; padding: 12px 20px; text-align: center; }}
-  .readiness-score {{ font-size: 32px; font-weight: 800; color: {badge_color}; }}
-  .badge {{ display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 700; background: {badge_color}22; color: {badge_color}; border: 1px solid {badge_color}55; }}
-  .section-title {{ font-size: 16px; font-weight: 700; color: #93C5FD; text-transform: uppercase; letter-spacing: 0.5px; margin: 24px 0 12px 0; border-left: 4px solid #3B82F6; padding-left: 10px; }}
-  .grid-2 {{ display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }}
-  .grid-3 {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }}
-  .card {{ background: #1E293B; border: 1px solid #334155; border-radius: 8px; padding: 14px 18px; }}
-  .card-label {{ font-size: 11px; text-transform: uppercase; color: #94A3B8; margin-bottom: 4px; font-weight: 600; }}
-  .card-val {{ font-size: 14px; font-weight: 600; color: #F8FAFC; word-break: break-all; }}
-  .highlight-box {{ background: #1E1B4B; border: 1px solid #4338CA; border-radius: 8px; padding: 18px; margin: 20px 0; }}
-  .highlight-title {{ font-weight: 700; color: #A5B4FC; margin-bottom: 6px; font-size: 15px; }}
-  .footer {{ margin-top: 32px; padding-top: 16px; border-top: 1px solid #374151; font-size: 11px; color: #64748B; text-align: center; }}
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+  body {{ font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif; background-color: #FFFBFE; color: #1C1B1F; margin: 0; padding: 24px; line-height: 1.55; }}
+  .packet-container {{ max-width: 960px; margin: 0 auto; background: #FFFFFF; border: 1px solid #CAC4D0; border-radius: 24px; padding: 32px; box-shadow: 0 4px 20px rgba(103, 80, 164, 0.08); }}
+  .header {{ display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #E7E0EC; padding-bottom: 20px; margin-bottom: 24px; }}
+  .header h1 {{ margin: 0 0 6px 0; font-size: 22px; color: #6750A4; font-weight: 700; letter-spacing: -0.01em; }}
+  .header .meta {{ color: #49454F; font-size: 13px; }}
+  .readiness-box {{ background: #F3EDF7; border: 1px solid #E7E0EC; border-radius: 16px; padding: 12px 24px; text-align: center; }}
+  .readiness-score {{ font-size: 32px; font-weight: 900; color: #6750A4; line-height: 1.1; }}
+  .badge {{ display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 700; background: {badge_bg}; color: {badge_text}; margin-top: 4px; }}
+  .section-title {{ font-size: 15px; font-weight: 700; color: #1C1B1F; text-transform: uppercase; letter-spacing: 0.04em; margin: 24px 0 12px 0; border-left: 4px solid #6750A4; padding-left: 10px; }}
+  .grid-2 {{ display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }}
+  .grid-3 {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }}
+  .card {{ background: #F7F2FA; border: 1px solid #E7E0EC; border-radius: 16px; padding: 14px 18px; }}
+  .card-label {{ font-size: 11px; text-transform: uppercase; color: #49454F; margin-bottom: 4px; font-weight: 600; letter-spacing: 0.03em; }}
+  .card-val {{ font-size: 14px; font-weight: 600; color: #1C1B1F; word-break: break-all; }}
+  .highlight-box {{ background: #EADDFF; border: 1px solid #D0BCFF; border-radius: 18px; padding: 20px; margin: 20px 0; color: #21005D; }}
+  .highlight-title {{ font-weight: 700; color: #21005D; margin-bottom: 6px; font-size: 16px; }}
+  .footer {{ margin-top: 32px; padding-top: 16px; border-top: 1px solid #E7E0EC; font-size: 12px; color: #79747E; text-align: center; }}
 </style>
 </head>
 <body>
@@ -294,7 +296,7 @@ class DisputeEvidenceGenerator:
     <div>
       <h1>🛡️ ChargeShield AI: Dispute Evidence Packet</h1>
       <div class="meta">Case ID: <strong>{packet['dispute_id']}</strong> | Transaction: <strong>{s['transaction_id']}</strong></div>
-      <div class="meta">Generated: {packet['packet_generated_at']} | Ecosystem: Razorpay AI Risk Manager</div>
+      <div class="meta">Generated: {packet['packet_generated_at']} | Network: ChargeShield AI Autonomous Risk Network</div>
     </div>
     <div class="readiness-box">
       <div class="card-label">Case Readiness</div>
@@ -305,24 +307,24 @@ class DisputeEvidenceGenerator:
 
   <div class="highlight-box">
     <div class="highlight-title">⚖️ Recommended Representment Stance: {stance['stance_title']}</div>
-    <div style="font-size: 13px; color: #CBD5E1; margin-bottom: 8px;"><strong>Governing Rule:</strong> {stance['compelling_evidence_rule']}</div>
-    <div style="font-size: 13px; color: #E2E8F0; line-height: 1.6;">{stance['core_argument']}</div>
+    <div style="font-size: 13px; color: #381E72; margin-bottom: 8px;"><strong>Governing Rule:</strong> {stance['compelling_evidence_rule']}</div>
+    <div style="font-size: 13px; color: #21005D; line-height: 1.6;">{stance['core_argument']}</div>
   </div>
 
   <div class="section-title">1. Transaction & Dispute Summary</div>
   <div class="grid-3">
-    <div class="card"><div class="card-label">Disputed Amount</div><div class="card-val" style="color: #34D399; font-size: 18px;">₹{s['amount_inr']:,.2f}</div></div>
+    <div class="card"><div class="card-label">Disputed Amount</div><div class="card-val" style="color: #146C2E; font-size: 18px;">₹{s['amount_inr']:,.2f}</div></div>
     <div class="card"><div class="card-label">Payment Method</div><div class="card-val">{s['payment_method']} ({s['card_network']})</div></div>
     <div class="card"><div class="card-label">RRN / UTR</div><div class="card-val">{s['rrn_utr']}</div></div>
     <div class="card"><div class="card-label">Merchant Name</div><div class="card-val">{s['merchant_name']} ({s['merchant_category']})</div></div>
     <div class="card"><div class="card-label">Customer ID</div><div class="card-val">{s['customer_user_id']}</div></div>
-    <div class="card"><div class="card-label">Dispute Reason</div><div class="card-val" style="color: #F87171;">{c['dispute_reason']}</div></div>
+    <div class="card"><div class="card-label">Dispute Reason</div><div class="card-val" style="color: #BA1A1A;">{c['dispute_reason']}</div></div>
   </div>
 
   <div class="section-title">2. Cryptographic Authentication & Liability Shift</div>
   <div class="grid-2">
     <div class="card"><div class="card-label">Authentication Protocol</div><div class="card-val">{a['auth_protocol']}</div></div>
-    <div class="card"><div class="card-label">Card Network Liability Shift</div><div class="card-val" style="color: #38BDF8;">{a['liability_shift_status']}</div></div>
+    <div class="card"><div class="card-label">Card Network Liability Shift</div><div class="card-val" style="color: #6750A4;">{a['liability_shift_status']}</div></div>
   </div>
 
   <div class="section-title">3. Forensic Telemetry & IP-Geo Match</div>
@@ -330,7 +332,7 @@ class DisputeEvidenceGenerator:
     <div class="card"><div class="card-label">Customer IP Address</div><div class="card-val">{t['ip_address']} ({t['isp_name']})</div></div>
     <div class="card"><div class="card-label">IP Geolocation</div><div class="card-val">{t['ip_geographic_location']}</div></div>
     <div class="card"><div class="card-label">Destination Address</div><div class="card-val">{t['destination_shipping_address']}</div></div>
-    <div class="card"><div class="card-label">IP-Geo Alignment</div><div class="card-val" style="color: {'#34D399' if 'MATCH' in t['ip_to_delivery_geo_match'] else '#FBBF24'};">{t['ip_to_delivery_geo_match']}</div></div>
+    <div class="card"><div class="card-label">IP-Geo Alignment</div><div class="card-val" style="color: {'#146C2E' if 'MATCH' in t['ip_to_delivery_geo_match'] else '#8F4E00'};">{t['ip_to_delivery_geo_match']}</div></div>
     <div class="card"><div class="card-label">Device Fingerprint</div><div class="card-val">{t['device_id_fingerprint']}</div></div>
     <div class="card"><div class="card-label">Session Duration</div><div class="card-val">{t['session_duration_seconds']}s (Natural human interaction)</div></div>
   </div>
@@ -339,7 +341,7 @@ class DisputeEvidenceGenerator:
   <div class="grid-3">
     <div class="card"><div class="card-label">Courier Partner</div><div class="card-val">{f['carrier_partner']}</div></div>
     <div class="card"><div class="card-label">Air Waybill (AWB) Tracking</div><div class="card-val">{f['tracking_awb']}</div></div>
-    <div class="card"><div class="card-label">Delivery Status</div><div class="card-val" style="color: #34D399;">{f['delivery_status']}</div></div>
+    <div class="card"><div class="card-label">Delivery Status</div><div class="card-val" style="color: #146C2E;">{f['delivery_status']}</div></div>
   </div>
 
   <div class="section-title">5. Merchant Policy Acceptance Audit Trail</div>
@@ -347,11 +349,11 @@ class DisputeEvidenceGenerator:
     <div class="card-label">Terms Accepted Timestamp</div>
     <div class="card-val" style="margin-bottom: 8px;">{p['terms_accepted_timestamp']} (Version {p['terms_of_service_version']})</div>
     <div class="card-label">Policy Clause</div>
-    <div style="font-size: 12px; color: #94A3B8;">{p['refund_cancellation_policy_clause']}</div>
+    <div style="font-size: 12px; color: #49454F;">{p['refund_cancellation_policy_clause']}</div>
   </div>
 
   <div class="footer">
-    Compiled by ChargeShield AI Arbitration Engine • Defense-Only Automated Evidence Generation for Razorpay Ecosystem
+    Compiled by ChargeShield AI Arbitration Engine • Autonomous Dispute Defense Architecture
   </div>
 </div>
 </body>

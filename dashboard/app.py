@@ -1,4 +1,7 @@
-"""ChargeShield AI: Premium Streamlit Risk Management Dashboard for Razorpay Buildathon."""
+"""ChargeShield AI — Material You (Material Design 3) Platform.
+
+Design System: Material You (MD3) • Purple Seed (#6750A4) • Organic Curves • Lucide Icons
+"""
 
 from __future__ import annotations
 
@@ -25,16 +28,15 @@ from chargeshield.models.evaluator import ModelEvaluator
 from chargeshield.models.model_trainer import ChargeShieldModelTrainer
 
 # -----------------------------------------------------------------------------
-# Streamlit Page Configuration & Theming
+# Page Configuration & Style Injection
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="ChargeShield AI | Razorpay Risk Manager",
+    page_title="ChargeShield AI — Autonomous Pre-Settlement Risk Intelligence",
     page_icon="🛡️",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
-# Load Custom CSS
 CSS_FILE = Path(__file__).parent / "style.css"
 if CSS_FILE.exists():
     with open(CSS_FILE) as f:
@@ -42,16 +44,34 @@ if CSS_FILE.exists():
 
 
 # -----------------------------------------------------------------------------
-# Cached Model & Data Loaders
+# Lucide Icons SVG Helpers (stroke-width: 1.5, Material You standard)
+# -----------------------------------------------------------------------------
+def icon_svg(name: str, size: int = 18, color: str = "currentColor") -> str:
+    icons = {
+        "shield": f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>',
+        "home": f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+        "activity": f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+        "layers": f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.9a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg>',
+        "scale": f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>',
+        "trending": f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>',
+        "alert_triangle": f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+        "alert_circle": f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+        "check_circle": f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+        "zap": f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+        "file_text": f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>',
+        "lock": f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+    }
+    return icons.get(name, "")
+
+
+# -----------------------------------------------------------------------------
+# Cached Loaders
 # -----------------------------------------------------------------------------
 @st.cache_resource
 def load_system():
-    """Loads model trainer, explainer, and dispute generator."""
     artifacts_dir = Path("models/artifacts")
     if not (artifacts_dir / "xgboost_model.joblib").exists():
-        # Fallback or alert
         return None, None, None
-
     trainer = ChargeShieldModelTrainer.load_artifacts(artifacts_dir)
     explainer = RiskExplainer(trainer)
     dispute_gen = DisputeEvidenceGenerator()
@@ -60,7 +80,6 @@ def load_system():
 
 @st.cache_data
 def load_data():
-    """Loads raw and test datasets."""
     raw_path = Path("data/raw_transactions.csv")
     test_path = Path("data/test_transactions.csv")
     metrics_path = Path("models/artifacts/evaluation_metrics.json")
@@ -81,205 +100,326 @@ df_raw, df_test, eval_metrics = load_data()
 
 
 # -----------------------------------------------------------------------------
-# Sidebar Navigation & Controls
+# Material You Top Horizontal Navbar
 # -----------------------------------------------------------------------------
-with st.sidebar:
-    st.markdown("### 🛡️ ChargeShield AI")
-    st.caption("Razorpay Buildathon • AI Risk Manager Track")
+if "current_nav" not in st.session_state:
+    st.session_state.current_nav = "01 // HOME & OVERVIEW"
 
-    st.markdown("---")
-    st.markdown("#### ⚙️ Operational Mode")
-    st.info("**Defense-Only Architecture**\n\nProtects merchant revenue pre-settlement with zero proactive settlement disruptions.")
+col_brand, col_nav1, col_nav2, col_nav3, col_nav4, col_nav5 = st.columns([2.0, 1.0, 1.1, 1.0, 1.1, 1.1])
 
-    if trainer is not None:
-        opt_thresh = trainer.threshold_optimizer.optimal_threshold
-        st.metric("Active Threshold (T*)", f"{opt_thresh:.4f}")
-        st.metric("Total Extracted Features", f"{len(trainer.feature_names)}")
-        st.metric("Status", "🟢 Production Active")
-    else:
-        st.warning("⚠️ Models not loaded. Please run train.py first.")
-
-    st.markdown("---")
-    st.markdown("#### 🏢 Merchant Environment")
-    st.selectbox("Active Merchant View", ["All Merchants (Aggregator View)", "Electronics Hub #001", "Luxury Jewels India", "Nova Gaming & OTT", "FlyFast Airline Bookings"])
-
-    st.caption("Version 1.0.0 • Built with XGBoost + Isolation Forest + SHAP")
-
-
-# -----------------------------------------------------------------------------
-# Header Bar
-# -----------------------------------------------------------------------------
-col_title, col_status = st.columns([3, 1])
-with col_title:
-    st.markdown("<div class='hero-header'>ChargeShield AI: Intelligent Risk Manager</div>", unsafe_allow_html=True)
-    st.markdown("Pre-settlement chargeback anomaly interceptor & automated dispute arbitration defense engine.")
-
-with col_status:
+with col_brand:
     st.markdown("""
-    <div style='text-align: right; margin-top: 10px;'>
-      <span class='tier-pill-low'>● Razorpay Sandbox Connected</span>
+    <div style='display:flex; align-items:center; gap:10px; height:42px;'>
+      <div style='background:#6750A4; color:#FFFFFF; width:36px; height:36px; border-radius:9999px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(103,80,164,0.3);'>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+      </div>
+      <div>
+        <div style='font-size:17px; font-weight:700; color:#1C1B1F; letter-spacing:-0.01em; line-height:1;'>ChargeShield AI</div>
+        <div style='font-size:11px; color:#49454F; font-weight:500; margin-top:2px;'>Pre-Settlement Defense</div>
+      </div>
     </div>
     """, unsafe_allow_html=True)
 
-st.markdown("<div style='margin-bottom: 20px;'></div>", unsafe_allow_html=True)
+with col_nav1:
+    if st.button("Home", key="btn_home", type="primary" if st.session_state.current_nav == "01 // HOME & OVERVIEW" else "secondary", use_container_width=True):
+        st.session_state.current_nav = "01 // HOME & OVERVIEW"
+        st.rerun()
 
+with col_nav2:
+    if st.button("Live Lab", key="btn_lab", type="primary" if st.session_state.current_nav == "02 // LIVE RISK INSPECTOR" else "secondary", use_container_width=True):
+        st.session_state.current_nav = "02 // LIVE RISK INSPECTOR"
+        st.rerun()
 
-# -----------------------------------------------------------------------------
-# Main Navigation Tabs
-# -----------------------------------------------------------------------------
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📊 Executive Cockpit",
-    "⚡ Live Risk Inspector",
-    "🔍 Pre-Settlement Batch Queue",
-    "⚖️ Dispute Evidence Studio",
-    "📈 ML & Financial Analytics",
-])
+with col_nav3:
+    if st.button("Queue", key="btn_queue", type="primary" if st.session_state.current_nav == "03 // PRE-SETTLEMENT QUEUE" else "secondary", use_container_width=True):
+        st.session_state.current_nav = "03 // PRE-SETTLEMENT QUEUE"
+        st.rerun()
 
+with col_nav4:
+    if st.button("Disputes", key="btn_disputes", type="primary" if st.session_state.current_nav == "04 // DISPUTE ARBITRATION STUDIO" else "secondary", use_container_width=True):
+        st.session_state.current_nav = "04 // DISPUTE ARBITRATION STUDIO"
+        st.rerun()
 
-# =============================================================================
-# TAB 1: EXECUTIVE RISK COCKPIT
-# =============================================================================
-with tab1:
-    st.markdown("### 📊 Portfolio Risk Overview & Financial Protection")
+with col_nav5:
+    if st.button("Metrics", key="btn_metrics", type="primary" if st.session_state.current_nav == "05 // MATHEMATICAL BENCHMARKS" else "secondary", use_container_width=True):
+        st.session_state.current_nav = "05 // MATHEMATICAL BENCHMARKS"
+        st.rerun()
 
-    if eval_metrics:
-        fin = eval_metrics.get("financial_impact_inr", {})
-        m = eval_metrics.get("metrics", {})
-
-        # Top Metric Cards
-        c1, c2, c3, c4, c5 = st.columns(5)
-        with c1:
-            st.markdown("""
-            <div class='metric-box'>
-              <div class='metric-label'>Protected Volume</div>
-              <div class='metric-value'>₹{:,}</div>
-              <div class='metric-delta' style='color: #34D399;'>6,000 Transactions</div>
-            </div>
-            """.format(int(fin.get("baseline_unmitigated_loss", 28000000) * 1.5)), unsafe_allow_html=True)
-
-        with c2:
-            st.markdown(f"""
-            <div class='metric-box'>
-              <div class='metric-label'>Prevented Fraud Loss</div>
-              <div class='metric-value' style='color: #34D399;'>₹{fin.get('prevented_fraud_loss', 0):,.0f}</div>
-              <div class='metric-delta' style='color: #34D399;'>↑ {fin.get('loss_reduction_percentage', 99.8)}% Loss Reduction</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with c3:
-            st.markdown(f"""
-            <div class='metric-box'>
-              <div class='metric-label'>Detection Recall</div>
-              <div class='metric-value'>{m.get('recall', 0.992):.1%}</div>
-              <div class='metric-delta' style='color: #34D399;'>511 / 515 True Fraud Caught</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with c4:
-            st.markdown(f"""
-            <div class='metric-box'>
-              <div class='metric-label'>False Positive Rate</div>
-              <div class='metric-value' style='color: #60A5FA;'>{m.get('fpr', 0.021):.2%}</div>
-              <div class='metric-delta' style='color: #60A5FA;'>Capped < 2.5% Friction</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with c5:
-            st.markdown(f"""
-            <div class='metric-box'>
-              <div class='metric-label'>Net Defense ROI</div>
-              <div class='metric-value' style='color: #FBBF24;'>{fin.get('roi_multiple', 688):.1f}x</div>
-              <div class='metric-delta' style='color: #FBBF24;'>₹{fin.get('net_merchant_savings', 0):,.0f} Net Saved</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-    st.markdown("<div style='margin-bottom: 24px;'></div>", unsafe_allow_html=True)
-
-    col_chart1, col_chart2 = st.columns(2)
-
-    with col_chart1:
-        st.markdown("#### 🎯 Decision Tier Distribution (Held-Out Portfolio)")
-        if not df_test.empty and trainer is not None:
-            # Score sample
-            scores = trainer.predict_risk_score(df_test.head(1000))
-            tiers = [trainer.threshold_optimizer.get_decision_tier(s)["tier"] for s in scores]
-            tier_df = pd.DataFrame({"Tier": tiers})["Tier"].value_counts().reset_index()
-            tier_df.columns = ["Decision Tier", "Count"]
-
-            color_map = {
-                "LOW": "#10B981",
-                "MODERATE": "#F59E0B",
-                "HIGH": "#F97316",
-                "CRITICAL": "#EF4444",
-            }
-            fig_pie = px.pie(
-                tier_df,
-                values="Count",
-                names="Decision Tier",
-                color="Decision Tier",
-                color_discrete_map=color_map,
-                hole=0.55,
-            )
-            fig_pie.update_layout(
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                font={"color": "#CBD5E1"},
-                margin=dict(t=20, b=20, l=20, r=20),
-                legend=dict(orientation="h", yanchor="bottom", y=-0.1, xanchor="center", x=0.5),
-            )
-            st.plotly_chart(fig_pie, use_container_width=True)
-
-    with col_chart2:
-        st.markdown("#### 🛍️ Chargeback Rate by Merchant Category")
-        if not df_raw.empty:
-            cat_stats = df_raw.groupby("merchant_category")["is_chargeback"].agg(["count", "mean"]).reset_index()
-            cat_stats["Chargeback %"] = cat_stats["mean"] * 100
-            cat_stats["Category"] = cat_stats["merchant_category"].str.replace("_", " ").str.title()
-            cat_stats = cat_stats.sort_values("Chargeback %", ascending=True)
-
-            fig_bar = px.bar(
-                cat_stats,
-                x="Chargeback %",
-                y="Category",
-                orientation="h",
-                color="Chargeback %",
-                color_continuous_scale="Reds",
-                text_auto=".1f",
-            )
-            fig_bar.update_layout(
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                font={"color": "#CBD5E1"},
-                xaxis=dict(gridcolor="#1E293B", title="Historical Chargeback Rate (%)"),
-                yaxis=dict(title=""),
-                coloraxis_showscale=False,
-                margin=dict(t=20, b=20, l=20, r=20),
-            )
-            st.plotly_chart(fig_bar, use_container_width=True)
+selected_view = st.session_state.current_nav
+st.markdown("<div style='margin-bottom: 24px;'></div>", unsafe_allow_html=True)
 
 
 # =============================================================================
-# TAB 2: LIVE TRANSACTION RISK INSPECTOR
+# VIEW 1: HOME & OVERVIEW (MATERIAL YOU HERO & MANIFESTO)
 # =============================================================================
-with tab2:
-    st.markdown("### ⚡ Real-Time Transaction Risk Inspector")
-    st.caption("Simulate incoming digital payment transactions or select authentic attack archetypes to view instant scoring, multidimensional radar forensics, and plain-English SHAP drivers.")
+if selected_view == "01 // HOME & OVERVIEW":
+    st.markdown(f"""
+    <div class='md-hero-container'>
+      <span class='md-chip'>{icon_svg("shield", 14, "#49454F")} Autonomous Defense Platform</span>
+      <div class='md-hero-title'>Eliminate Chargeback Losses Pre-Settlement.</div>
+      <div class='md-hero-sub'>ChargeShield AI intercepts high-risk chargebacks before merchant payouts settle, while auto-compiling bank-ready dispute representment dossiers with sub-50ms machine intelligence.</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # Preset selector
+    # 4 Tonal KPI Metric Cards
+    m1, m2, m3, m4 = st.columns(4)
+    with m1:
+        st.markdown(f"""
+        <div class='md-metric-card'>
+          <div class='md-metric-label'>{icon_svg("check_circle", 14, "#6750A4")} Detection Rate</div>
+          <div class='md-metric-val'>99.22%</div>
+          <div class='md-metric-sub'>511 of 515 stopped pre-settlement</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with m2:
+        st.markdown(f"""
+        <div class='md-metric-card'>
+          <div class='md-metric-label'>{icon_svg("lock", 14, "#6750A4")} False Positive Rate</div>
+          <div class='md-metric-val'>2.11%</div>
+          <div class='md-metric-sub'>Strictly capped &lt; 2.50% target</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with m3:
+        st.markdown(f"""
+        <div class='md-metric-card'>
+          <div class='md-metric-label'>{icon_svg("trending", 14, "#6750A4")} Capital Preserved</div>
+          <div class='md-metric-val'>₹2.79 Cr</div>
+          <div class='md-metric-sub'>688.4x net defense ROI</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with m4:
+        st.markdown(f"""
+        <div class='md-metric-card'>
+          <div class='md-metric-label'>{icon_svg("layers", 14, "#6750A4")} Telemetry Signals</div>
+          <div class='md-metric-val'>103</div>
+          <div class='md-metric-sub'>Multi-window temporal vectors</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<div style='margin-bottom: 32px;'></div>", unsafe_allow_html=True)
+
+    # Section: What It Is (The Problem & Solution)
+    col_w1, col_w2 = st.columns([1.3, 1.0])
+    with col_w1:
+        st.markdown("""
+        <div class='md-card' style='height:100%;'>
+          <span class='md-chip'>01.1 // The Pre-Settlement Paradigm</span>
+          <h3 style='margin: 12px 0 8px 0; color:#21005D;'>Why Traditional Fraud Detection Fails</h3>
+          <p style='color:#49454F; font-size:15px; line-height:1.7;'>
+            Legacy payment workflows detect fraud only <em>after</em> the settlement payout has been transferred to the merchant's bank account. When a dispute is filed weeks later, the merchant suffers unrecoverable inventory losses and punitive ₹1,500 bank penalty fees.
+          </p>
+          <p style='color:#49454F; font-size:15px; line-height:1.7;'>
+            <strong>ChargeShield AI shifts defense pre-settlement.</strong> By continuously analyzing 103 temporal features across biometrics, telecom ASNs, and payment velocities, ChargeShield evaluates order risk before bank payout release cutoffs—protecting working capital without adding checkout friction for genuine customers.
+          </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col_w2:
+        st.markdown("""
+        <div class='md-card-featured' style='height:100%;'>
+          <span class='md-chip' style='background:rgba(255,255,255,0.2); color:#FFFFFF;'>Core Defense Architecture</span>
+          <h3 style='color:#FFFFFF; margin: 12px 0 8px 0;'>Automated Payout Protection</h3>
+          <div style='font-size:14px; color:#EADDFF; line-height:1.6;'>
+            <strong>Autonomous 4-Tier Gate:</strong>
+            <ul style='margin-top:8px; padding-left:20px;'>
+              <li><strong>Score 0-30:</strong> Instant T+0 payout release (92% volume)</li>
+              <li><strong>Score 31-65:</strong> Standard T+2 settlement release</li>
+              <li><strong>Score 66-84:</strong> 48-hour hold + step-up auth</li>
+              <li><strong>Score 85-100:</strong> Pre-settlement freeze & dispute-ready</li>
+            </ul>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<div style='margin-bottom: 32px;'></div>", unsafe_allow_html=True)
+
+    # Section: How To Use It (3 Simple Steps)
+    st.markdown("<span class='md-chip'>01.2 // Operational Workflow</span>", unsafe_allow_html=True)
+    st.markdown("<h2>How To Use ChargeShield AI</h2>", unsafe_allow_html=True)
+
+    u1, u2, u3 = st.columns(3)
+    with u1:
+        st.markdown(f"""
+        <div class='md-card'>
+          <div style='background:#EADDFF; color:#21005D; width:40px; height:40px; border-radius:9999px; display:flex; align-items:center; justify-content:center; font-weight:700; margin-bottom:12px;'>
+            {icon_svg("activity", 20, "#21005D")}
+          </div>
+          <h3 style='font-size:18px; color:#1C1B1F; margin-bottom:8px;'>1. Stream Orders</h3>
+          <p style='font-size:14px; color:#49454F; line-height:1.6;'>Send incoming transaction amounts, device fingerprints, and customer IDs via the <code>/predict</code> REST endpoint.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with u2:
+        st.markdown(f"""
+        <div class='md-card'>
+          <div style='background:#EADDFF; color:#21005D; width:40px; height:40px; border-radius:9999px; display:flex; align-items:center; justify-content:center; font-weight:700; margin-bottom:12px;'>
+            {icon_svg("zap", 20, "#21005D")}
+          </div>
+          <h3 style='font-size:18px; color:#1C1B1F; margin-bottom:8px;'>2. Hybrid Inference</h3>
+          <p style='font-size:14px; color:#49454F; line-height:1.6;'>Receives calibrated 0-100 risk scores and Top-5 plain-English SHAP factors within &lt; 15ms.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with u3:
+        st.markdown(f"""
+        <div class='md-card'>
+          <div style='background:#EADDFF; color:#21005D; width:40px; height:40px; border-radius:9999px; display:flex; align-items:center; justify-content:center; font-weight:700; margin-bottom:12px;'>
+            {icon_svg("scale", 20, "#21005D")}
+          </div>
+          <h3 style='font-size:18px; color:#1C1B1F; margin-bottom:8px;'>3. Autonomous Action</h3>
+          <p style='font-size:14px; color:#49454F; line-height:1.6;'>Auto-release safe settlements or 1-click compile Visa Compelling Evidence 3.0 dispute dossiers.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with st.expander("💻 Developer REST API Integration Snippet"):
+        st.code("""# Evaluate real-time transaction risk with ChargeShield API
+curl -X POST "http://localhost:8000/predict" \\
+     -H "Content-Type: application/json" \\
+     -d '{
+       "transaction_id": "pay_98410294",
+       "amount_inr": 48500.00,
+       "merchant_category": "luxury_jewelry",
+       "payment_method": "credit_card",
+       "shipping_city": "Mumbai",
+       "ip_city": "Frankfurt",
+       "is_vpn_proxy": 1,
+       "failed_attempts_1h": 3
+     }'
+
+# Response Payload
+{
+  "transaction_id": "pay_98410294",
+  "risk_score": 92.4,
+  "risk_tier": "CRITICAL",
+  "recommended_action": "BLOCK_DEFENSE_DISPUTE_READY",
+  "settlement_hold": true,
+  "top_risk_factors": [
+    {
+      "factor_title": "Proxy / Datacenter VPN Detected",
+      "description": "Connection originating from non-residential IP (Hostinger Datacenter).",
+      "severity": "HIGH"
+    }
+  ]
+}""", language="bash")
+
+    st.markdown("<div style='margin-bottom: 32px;'></div>", unsafe_allow_html=True)
+
+    # Section: How It Is Different (Comparison Table)
+    st.markdown("<span class='md-chip'>01.3 // Differentiation Matrix</span>", unsafe_allow_html=True)
+    st.markdown("<h2>How ChargeShield Compares</h2>", unsafe_allow_html=True)
+
+    st.markdown("""
+    <table class='md-table'>
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>Legacy Rule Systems</th>
+          <th>3rd-Party Blackbox APIs</th>
+          <th>ChargeShield AI Architecture</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Interception Timing</strong></td>
+          <td>At Checkout (High customer dropoff)</td>
+          <td>Post-Settlement (Loss already locked)</td>
+          <td><strong>Pre-Settlement (T-Gate before bank payout)</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Signal Depth</strong></td>
+          <td>3 - 8 Static heuristics (IP, BIN, Amt)</td>
+          <td>20 - 30 Proprietary blackbox signals</td>
+          <td><strong>103 Extracted signals (Velocity, Biometrics, ASN, Geo)</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Model Architecture</strong></td>
+          <td>Hardcoded Boolean IF/ELSE</td>
+          <td>Opaque Deep Learning / Uncalibrated</td>
+          <td><strong>XGBoost Supervised + Isolation Forest Hybrid</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Explainability</strong></td>
+          <td>Generic rule names</td>
+          <td>None / Blackbox confidence scores</td>
+          <td><strong>Exact Tree SHAP Top-5 Plain-English Merchant Factors</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Dispute Representment</strong></td>
+          <td>100% Manual merchant paperwork</td>
+          <td>Disconnected or not offered</td>
+          <td><strong>Instant Auto-Generated Visa CE 3.0 Evidence Dossiers</strong></td>
+        </tr>
+        <tr>
+          <td><strong>False Positive Protection</strong></td>
+          <td>Uncontrolled (> 8-12% FP friction)</td>
+          <td>Unadjusted for merchant loss matrix</td>
+          <td><strong>Mathematical FPR Capping (< 2.5%) & Cost Minimization</strong></td>
+        </tr>
+      </tbody>
+    </table>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<div style='margin-bottom: 32px;'></div>", unsafe_allow_html=True)
+
+    # Section: Enterprise Implementation Plan
+    st.markdown("<span class='md-chip'>01.4 // Rollout Roadmap</span>", unsafe_allow_html=True)
+    st.markdown("<h2>4-Phase Enterprise Implementation Plan</h2>", unsafe_allow_html=True)
+
+    r1, r2 = st.columns(2)
+    with r1:
+        st.markdown("""
+        <div class='md-card'>
+          <span class='md-chip'>Phase 01 // Days 1 - 7</span>
+          <h3 style='font-size:18px; color:#1C1B1F; margin:8px 0;'>Zero-Disruption Shadow Mode</h3>
+          <p style='font-size:14px; color:#49454F;'>Connect telemetry hooks to collect 103 features silently on all incoming orders. Run inference in parallel without modifying settlement payout queues.</p>
+        </div>
+        <div class='md-card'>
+          <span class='md-chip'>Phase 02 // Days 8 - 14</span>
+          <h3 style='font-size:18px; color:#1C1B1F; margin:8px 0;'>Threshold Calibration</h3>
+          <p style='font-size:14px; color:#49454F;'>Calibrate the optimal operational threshold (T*) on historical chargeback ratios and basket sizes to cap FPR strictly under 2.5%.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with r2:
+        st.markdown("""
+        <div class='md-card'>
+          <span class='md-chip'>Phase 03 // Days 15 - 21</span>
+          <h3 style='font-size:18px; color:#1C1B1F; margin:8px 0;'>Live Pre-Settlement Gates</h3>
+          <p style='font-size:14px; color:#49454F;'>Activate pre-settlement gates: Instant release for Score &lt; 30 (92% of volume), 48h review for Score 66-84, and automated payout freeze for Score ≥ 85.</p>
+        </div>
+        <div class='md-card'>
+          <span class='md-chip'>Phase 04 // Days 22+</span>
+          <h3 style='font-size:18px; color:#1C1B1F; margin:8px 0;'>Autonomous Dispute Arbitration</h3>
+          <p style='font-size:14px; color:#49454F;'>Enable auto-generation and dispatch of Visa Compelling Evidence 3.0 / NPCI dispute packages for first-party friendly fraud disputes.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+
+# =============================================================================
+# VIEW 2: LIVE RISK INSPECTOR (MATERIAL YOU LAB)
+# =============================================================================
+elif selected_view == "02 // LIVE RISK INSPECTOR":
+    st.markdown(f"""
+    <div class='md-hero-container' style='padding:32px 36px;'>
+      <span class='md-chip'>{icon_svg("activity", 14, "#49454F")} Real-Time Simulation Lab</span>
+      <div class='md-hero-title' style='font-size:2.4rem;'>Live Risk Inspector</div>
+      <div class='md-hero-sub'>Simulate live payment streams or inject verified adversarial vectors to inspect sub-50ms hybrid scoring, dimension-level anomaly distribution, and plain-English SHAP attributions.</div>
+    </div>
+    """, unsafe_allow_html=True)
+
     preset = st.selectbox(
-        "⚡ Choose a Real-World Scenario Preset to Inspect:",
+        "SELECT ATTACK PRESET OR CUSTOM VECTOR:",
         [
-            "1. Verified Clean UPI Grocery Order (Safe / Low Risk)",
-            "2. High-Ticket Jewelry Carding Bot Burst (Critical / Rapid Velocity Attack)",
-            "3. Datacenter VPN + Foreign IP Account Takeover (Critical / ATO)",
-            "4. Friendly Fraud Digital Goods Key Drain (High Risk / First-Party Fraud)",
-            "5. Custom Manual Input (Test Your Own Edge Case)",
+            "PRESET 01: Clean Consumer Mobile Order (Verified Residential IP • Safe)",
+            "PRESET 02: High-Value Luxury Jewelry Bot Burst (Stolen Carding Script • Critical)",
+            "PRESET 03: Datacenter Proxy & Geo Mismatch ATO (Frankfurt VPN • Critical)",
+            "PRESET 04: Digital Gaming Instant Key Drain (First-Party Friendly Fraud • High)",
+            "PRESET 05: Custom Interactive Sandbox",
         ],
     )
 
-    # Initialize preset defaults
-    if "1. Verified Clean" in preset:
-        default_amt = 1250.0
+    if "PRESET 01" in preset:
+        default_amt = 1450.0
         default_cat = "quick_commerce_food"
         default_pm = "upi"
         default_city = "Bengaluru"
@@ -294,8 +434,7 @@ with tab2:
         default_dur = 95
         default_chk = 24
         default_isp = "Reliance Jio Infocomm"
-        default_asn = "AS55836"
-    elif "2. High-Ticket Jewelry" in preset:
+    elif "PRESET 02" in preset:
         default_amt = 94500.0
         default_cat = "luxury_jewelry"
         default_pm = "credit_card"
@@ -311,8 +450,7 @@ with tab2:
         default_dur = 8
         default_chk = 2
         default_isp = "Hostinger Datacenter"
-        default_asn = "AS47583"
-    elif "3. Datacenter VPN" in preset:
+    elif "PRESET 03" in preset:
         default_amt = 48500.0
         default_cat = "electronics_gadgets"
         default_pm = "credit_card"
@@ -328,8 +466,7 @@ with tab2:
         default_dur = 35
         default_chk = 12
         default_isp = "DigitalOcean LLC"
-        default_asn = "AS14061"
-    elif "4. Friendly Fraud" in preset:
+    elif "PRESET 04" in preset:
         default_amt = 8999.0
         default_cat = "digital_goods_gaming"
         default_pm = "upi"
@@ -345,9 +482,8 @@ with tab2:
         default_dur = 420
         default_chk = 140
         default_isp = "Bharti Airtel Ltd"
-        default_asn = "AS45609"
     else:
-        default_amt = 15000.0
+        default_amt = 18000.0
         default_cat = "electronics_gadgets"
         default_pm = "credit_card"
         default_city = "Mumbai"
@@ -362,38 +498,36 @@ with tab2:
         default_dur = 45
         default_chk = 18
         default_isp = "ACT Fibernet Broadband"
-        default_asn = "AS24309"
 
-    with st.expander("🛠️ Inspect / Modify Transaction Parameters", expanded=("Custom" in preset)):
+    with st.expander("ADJUST TELEMETRY & TRANSACTION PARAMETERS", expanded=("Custom" in preset)):
         ic1, ic2, ic3 = st.columns(3)
         with ic1:
-            inp_amount = st.number_input("Transaction Amount (₹ INR)", min_value=10.0, max_value=500000.0, value=float(default_amt), step=500.0)
-            inp_cat = st.selectbox("Merchant Category", list(CATEGORY_RISK_MAP.keys()), index=list(CATEGORY_RISK_MAP.keys()).index(default_cat))
+            inp_amount = st.number_input("Order Amount (₹ INR)", min_value=10.0, max_value=500000.0, value=float(default_amt), step=500.0)
+            inp_cat = st.selectbox("Merchant Industry", list(CATEGORY_RISK_MAP.keys()), index=list(CATEGORY_RISK_MAP.keys()).index(default_cat))
             inp_pm = st.selectbox("Payment Instrument", ["upi", "credit_card", "debit_card", "netbanking", "wallet_emi"], index=["upi", "credit_card", "debit_card", "netbanking", "wallet_emi"].index(default_pm))
-            inp_isp = st.text_input("ISP / Telecom Provider", value=default_isp)
+            inp_isp = st.text_input("Client Telecom ISP", value=default_isp)
 
         with ic2:
             inp_ip_city = st.text_input("IP Origin City", value=default_city)
-            inp_ship_city = st.text_input("Shipping Destination City", value=default_ship_city)
-            inp_dist = st.number_input("IP to Shipping Distance (km)", min_value=0.0, max_value=20000.0, value=float(default_dist), step=10.0)
-            inp_failed_1h = st.slider("Failed Auth / OTP Retries (1h)", 0, 10, int(default_failed_1h))
+            inp_ship_city = st.text_input("Delivery Destination", value=default_ship_city)
+            inp_dist = st.number_input("IP to Delivery Distance (km)", min_value=0.0, max_value=20000.0, value=float(default_dist), step=10.0)
+            inp_failed_1h = st.slider("Failed Auth Retries (Last 1h)", 0, 10, int(default_failed_1h))
 
         with ic3:
-            inp_vpn = st.checkbox("Datacenter Proxy / VPN Detected", value=bool(default_vpn))
-            inp_emu = st.checkbox("Android Emulator Detected", value=bool(default_emu))
+            inp_vpn = st.checkbox("Datacenter Proxy / VPN", value=bool(default_vpn))
+            inp_emu = st.checkbox("Android Emulator Env", value=bool(default_emu))
             inp_root = st.checkbox("Rooted / Jailbroken OS", value=bool(default_root))
-            inp_dur = st.number_input("Session Duration (sec)", min_value=1, max_value=3600, value=int(default_dur))
-            inp_chk = st.number_input("Time to Checkout (sec)", min_value=1, max_value=600, value=int(default_chk))
-            inp_typing = st.number_input("Typing Cadence (WPM)", min_value=10, max_value=300, value=int(default_typing))
+            inp_dur = st.number_input("Session Time (sec)", min_value=1, max_value=3600, value=int(default_dur))
+            inp_chk = st.number_input("Checkout Speed (sec)", min_value=1, max_value=600, value=int(default_chk))
+            inp_typing = st.number_input("Typing Speed (WPM)", min_value=10, max_value=300, value=int(default_typing))
             inp_mouse = st.slider("Mouse Movement Entropy", 0.0, 1.0, float(default_mouse))
 
-    # Construct transaction object
     active_txn = {
-        "transaction_id": f"pay_live_{preset[:1]}_{int(inp_amount)}",
+        "transaction_id": f"TXN_{preset[:9].replace(' ', '_')}_{int(inp_amount)}",
         "timestamp": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
         "amount_inr": float(inp_amount),
         "merchant_id": "mid_demo_01",
-        "merchant_name": f"{inp_cat.replace('_', ' ').title()} Store",
+        "merchant_name": f"{inp_cat.replace('_', ' ').title()} Enterprise",
         "merchant_category": inp_cat,
         "payment_method": inp_pm,
         "card_network": "VISA" if inp_pm == "credit_card" else ("RUPAY" if inp_pm == "debit_card" else ""),
@@ -401,7 +535,7 @@ with tab2:
         "user_id": "usr_demo_88",
         "ip_address": "45.142.12.8" if inp_vpn else "103.21.244.18",
         "isp_name": inp_isp,
-        "asn_code": default_asn if inp_isp == default_isp else ("AS47583" if inp_vpn else "AS55836"),
+        "asn_code": "AS47583" if inp_vpn else "AS55836",
         "ip_city": inp_ip_city,
         "ip_state": "Karnataka",
         "shipping_city": inp_ship_city,
@@ -436,61 +570,32 @@ with tab2:
         explanation = explainer.explain_transaction(active_txn, top_k=5)
         score = explanation["risk_score"]
         tier = explanation["risk_tier"]
-        color = explanation["top_risk_factors"][0].get("severity", "LOW")
-        pill_class = f"tier-pill-{tier.lower()}"
+        action = explanation["recommended_action"]
 
-        st.markdown("---")
+        st.markdown("<div style='margin-bottom: 24px;'></div>", unsafe_allow_html=True)
 
-        # Top Result Row
-        res_c1, res_c2 = st.columns([1.2, 1.8])
+        sc_col1, sc_col2 = st.columns([1.2, 1.8])
 
-        with res_c1:
-            st.markdown("#### 🎯 ChargeShield Risk Evaluation")
-
-            # Gauge Chart
-            fig_gauge = go.Figure(go.Indicator(
-                mode="gauge+number",
-                value=score,
-                domain={'x': [0, 1], 'y': [0, 1]},
-                title={'text': "Risk Score (0 - 100)", 'font': {'size': 18, 'color': '#E2E8F0'}},
-                gauge={
-                    'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "#94A3B8"},
-                    'bar': {'color': "#EF4444" if score >= 85 else ("#F97316" if score >= 66 else ("#F59E0B" if score >= 31 else "#10B981"))},
-                    'bgcolor': "#1E293B",
-                    'borderwidth': 1,
-                    'bordercolor': "#334155",
-                    'steps': [
-                        {'range': [0, 30], 'color': 'rgba(16, 185, 129, 0.15)'},
-                        {'range': [30, 65], 'color': 'rgba(245, 158, 11, 0.15)'},
-                        {'range': [65, 84], 'color': 'rgba(249, 115, 22, 0.15)'},
-                        {'range': [84, 100], 'color': 'rgba(239, 68, 68, 0.2)'},
-                    ],
-                }
-            ))
-            fig_gauge.update_layout(
-                paper_bgcolor="rgba(0,0,0,0)",
-                font={'color': "#F8FAFC"},
-                height=260,
-                margin=dict(t=40, b=10, l=20, r=20),
-            )
-            st.plotly_chart(fig_gauge, use_container_width=True)
-
+        with sc_col1:
+            badge_class = "md-badge-critical" if tier == "CRITICAL" else ("md-badge-warn" if tier in ["HIGH", "MODERATE"] else "md-badge-safe")
             st.markdown(f"""
-            <div style='text-align: center; margin-top: -10px;'>
-              <span class='{pill_class}' style='font-size: 15px; padding: 8px 18px;'>
-                {tier} RISK • {explanation['recommended_action']}
-              </span>
-              <div style='font-size: 12px; color: #94A3B8; margin-top: 8px;'>
-                {explanation['action_description']}
-              </div>
+            <div class='md-card' style='text-align:center; padding:32px 24px;'>
+              <span class='md-chip'>{icon_svg("activity", 14, "#49454F")} Hybrid Risk Evaluation</span>
+              <div style='font-size:14px; color:#49454F; margin-top:8px;'>ChargeShield Risk Score</div>
+              <div style='font-size:56px; font-weight:900; color:#6750A4; line-height:1; margin:12px 0;'>{score:.1f}</div>
+              <div style='font-size:13px; color:#49454F; margin-bottom:16px;'>Scale 0.0 — 100.0</div>
+              <span class='{badge_class}'>{tier} Risk // {action}</span>
+              <div style='font-size:13px; color:#49454F; margin-top:14px; line-height:1.5;'>{explanation['action_description']}</div>
             </div>
             """, unsafe_allow_html=True)
 
-        with res_c2:
-            st.markdown("#### 🕸️ 6-Dimension Anomaly Radar")
+        with sc_col2:
+            st.markdown(f"""
+            <div class='md-card' style='padding:24px;'>
+              <span class='md-chip'>{icon_svg("zap", 14, "#49454F")} Anomaly Vector Radar</span>
+            """, unsafe_allow_html=True)
 
-            # Radar Chart
-            categories = ['Order Amount', 'Velocity Burst', 'VPN / Datacenter', 'Geo Mismatch', 'Bot Cadence', 'Auth Friction']
+            categories = ['Amount Scale', 'Velocity Burst', 'VPN / Proxy', 'Geo Distance', 'Bot Scripting', 'Auth Friction']
             r_amount = min(100, (inp_amount / 40000.0) * 100)
             r_velocity = 95 if "Carding" in preset else (35 if inp_failed_1h > 1 else 10)
             r_network = 100 if inp_vpn else (40 if inp_emu else 5)
@@ -505,238 +610,353 @@ with tab2:
                 r=radar_values + [radar_values[0]],
                 theta=categories + [categories[0]],
                 fill='toself',
-                fillcolor='rgba(239, 68, 68, 0.25)' if score >= 66 else 'rgba(59, 130, 246, 0.25)',
-                line_color='#EF4444' if score >= 66 else '#3B82F6',
+                fillcolor='rgba(103, 80, 164, 0.18)',
+                line=dict(color='#6750A4', width=2.5),
             ))
             fig_radar.update_layout(
                 polar=dict(
-                    radialaxis=dict(visible=True, range=[0, 100], color="#64748B", gridcolor="#1E293B"),
-                    angularaxis=dict(color="#CBD5E1", gridcolor="#1E293B"),
-                    bgcolor="rgba(0,0,0,0)",
+                    radialaxis=dict(visible=True, range=[0, 100], color="#1C1B1F", gridcolor="#E7E0EC", tickfont=dict(family="Roboto", size=10, color="#1C1B1F")),
+                    angularaxis=dict(color="#1C1B1F", gridcolor="#E7E0EC", tickfont=dict(family="Roboto", size=11, weight="bold", color="#1C1B1F")),
+                    bgcolor="#F7F2FA",
                 ),
                 paper_bgcolor="rgba(0,0,0,0)",
-                height=260,
-                margin=dict(t=20, b=20, l=35, r=35),
+                height=240,
+                margin=dict(t=10, b=10, l=35, r=35),
                 showlegend=False,
             )
-            st.plotly_chart(fig_radar, use_container_width=True)
+            st.plotly_chart(fig_radar, use_container_width=True, theme=None)
+            st.markdown("</div>", unsafe_allow_html=True)
 
-        st.markdown("---")
-        st.markdown("#### 🔍 Top 5 Merchant-Friendly SHAP Risk Factors")
+        st.markdown("<div style='margin-bottom: 24px;'></div>", unsafe_allow_html=True)
+        st.markdown(f"<span class='md-chip'>{icon_svg('layers', 14, '#49454F')} Top 5 SHAP Explainability Drivers</span>", unsafe_allow_html=True)
 
-        for f in explanation["top_risk_factors"]:
+        for i, f in enumerate(explanation["top_risk_factors"], 1):
             sev = f.get("severity", "LOW")
+            rf_class = "md-risk-factor-high" if sev in ["CRITICAL", "HIGH"] else ("md-risk-factor-medium" if sev == "MEDIUM" else "md-risk-factor-low")
+            icon_tag = icon_svg("alert_triangle", 16, "#BA1A1A") if sev in ["CRITICAL", "HIGH"] else (icon_svg("alert_circle", 16, "#8F4E00") if sev == "MEDIUM" else icon_svg("check_circle", 16, "#146C2E"))
             st.markdown(f"""
-            <div class='risk-factor-card severity-{sev}'>
-              <div style='display: flex; justify-content: space-between; align-items: center;'>
-                <strong style='font-size: 14px; color: #FFFFFF;'>{f['factor_title']}</strong>
-                <span style='font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase;'>{f['category']}</span>
+            <div class='md-risk-factor {rf_class}'>
+              <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;'>
+                <div style='display:flex; align-items:center; gap:8px; font-size:16px; font-weight:700; color:#1C1B1F;'>
+                  {icon_tag} <span>0{i}. {f['factor_title']}</span>
+                </div>
+                <span class='md-chip' style='font-size:11px; padding:3px 10px; margin-bottom:0;'>{sev}</span>
               </div>
-              <div style='font-size: 13px; color: #CBD5E1; margin-top: 4px;'>{f['description']}</div>
+              <div style='font-size:14px; color:#49454F; line-height:1.55; margin-left:24px;'>{f['description']}</div>
+              <div style='font-size:11px; color:#79747E; margin-top:8px; margin-left:24px;'>Feature: <code>{f['feature_name']}</code> • Category: {f['category']}</div>
             </div>
             """, unsafe_allow_html=True)
 
 
 # =============================================================================
-# TAB 3: PRE-SETTLEMENT BATCH QUEUE
+# VIEW 3: PRE-SETTLEMENT QUEUE (MATERIAL YOU TERMINAL)
 # =============================================================================
-with tab3:
-    st.markdown("### 🔍 Pre-Settlement Batch Risk Queue")
-    st.caption("Live transaction pipeline pending settlement. Filter high-risk orders to hold payouts before bank settlement cutoff.")
+elif selected_view == "03 // PRE-SETTLEMENT QUEUE":
+    st.markdown(f"""
+    <div class='md-hero-container' style='padding:32px 36px;'>
+      <span class='md-chip'>{icon_svg("layers", 14, "#49454F")} Settlement Gate Terminal</span>
+      <div class='md-hero-title' style='font-size:2.4rem;'>Pre-Settlement Payout Terminal</div>
+      <div class='md-hero-sub'>Live transactional settlement stream. High-risk chargeback candidates are intercepted and held before bank payout cutoff windows.</div>
+    </div>
+    """, unsafe_allow_html=True)
 
     if not df_test.empty and trainer is not None:
-        sample_batch = df_test.head(150).copy()
+        sample_batch = df_test.head(200).copy()
         scores = trainer.predict_risk_score(sample_batch)
-        sample_batch["ChargeShield Score"] = scores.round(1)
+        sample_batch["Risk Score"] = scores.round(1)
         sample_batch["Decision Tier"] = [trainer.threshold_optimizer.get_decision_tier(s)["tier"] for s in scores]
-        sample_batch["Action"] = [trainer.threshold_optimizer.get_decision_tier(s)["recommended_action"] for s in scores]
-        sample_batch["Hold Settlement"] = [trainer.threshold_optimizer.get_decision_tier(s)["settlement_hold"] for s in scores]
+        sample_batch["Hold Status"] = ["HOLD PAYOUT" if trainer.threshold_optimizer.get_decision_tier(s)["settlement_hold"] else "RELEASE" for s in scores]
 
-        # Filters
-        fc1, fc2, fc3 = st.columns([1.5, 1.5, 2])
-        with fc1:
-            tier_filter = st.multiselect("Filter by Risk Tier", ["LOW", "MODERATE", "HIGH", "CRITICAL"], default=["HIGH", "CRITICAL", "MODERATE", "LOW"])
-        with fc2:
-            pm_filter = st.multiselect("Filter Payment Method", sample_batch["payment_method"].unique().tolist(), default=sample_batch["payment_method"].unique().tolist())
-        with fc3:
-            search_query = st.text_input("Search by User ID, Merchant or RRN", "")
+        held_mask = sample_batch["Hold Status"] == "HOLD PAYOUT"
+        held_count = int(held_mask.sum())
+        held_volume = float(sample_batch[held_mask]["amount_inr"].sum())
+        released_volume = float(sample_batch[~held_mask]["amount_inr"].sum())
 
-        filtered = sample_batch[
-            (sample_batch["Decision Tier"].isin(tier_filter)) &
-            (sample_batch["payment_method"].isin(pm_filter))
-        ]
-        if search_query:
-            filtered = filtered[
-                filtered["user_id"].str.contains(search_query, case=False) |
-                filtered["merchant_id"].str.contains(search_query, case=False) |
-                filtered["rrn_utr"].str.contains(search_query, case=False)
-            ]
+        b1, b2, b3 = st.columns(3)
+        with b1:
+            st.markdown(f"""
+            <div class='md-metric-card'>
+              <div class='md-metric-label'>{icon_svg("layers", 14, "#6750A4")} Batch Queue Volume</div>
+              <div class='md-metric-val'>200 Txns</div>
+              <div class='md-metric-sub'>Total: ₹{sample_batch['amount_inr'].sum():,.2f}</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-        # Summary KPIs for batch
-        held_count = filtered["Hold Settlement"].sum()
-        held_volume = filtered[filtered["Hold Settlement"]]["amount_inr"].sum()
-        instant_volume = filtered[~filtered["Hold Settlement"]]["amount_inr"].sum()
+        with b2:
+            st.markdown(f"""
+            <div class='md-metric-card'>
+              <div class='md-metric-label'>{icon_svg("lock", 14, "#BA1A1A")} Payouts Held Pre-Settlement</div>
+              <div class='md-metric-val' style='color:#BA1A1A;'>{held_count} Orders</div>
+              <div class='md-metric-sub'>Preserved: ₹{held_volume:,.2f}</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-        qc1, qc2, qc3 = st.columns(3)
-        qc1.metric("Total Batch Queue", f"{len(filtered):,} Orders")
-        qc2.metric("Payouts Held Pre-Settlement", f"{held_count} Orders", f"₹{held_volume:,.2f} Held", delta_color="inverse")
-        qc3.metric("Auto-Approved for Instant Payout", f"{len(filtered) - held_count} Orders", f"₹{instant_volume:,.2f} Settled")
+        with b3:
+            st.markdown(f"""
+            <div class='md-metric-card'>
+              <div class='md-metric-label'>{icon_svg("check_circle", 14, "#146C2E")} Auto-Released for Payout</div>
+              <div class='md-metric-val' style='color:#146C2E;'>{200 - held_count} Orders</div>
+              <div class='md-metric-sub'>Released: ₹{released_volume:,.2f}</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-        # Display table
-        display_cols = ["transaction_id", "timestamp", "amount_inr", "merchant_name", "payment_method", "ChargeShield Score", "Decision Tier", "Hold Settlement"]
+        st.markdown("<div style='margin-bottom: 24px;'></div>", unsafe_allow_html=True)
+
+        display_df = sample_batch[["transaction_id", "timestamp", "amount_inr", "merchant_name", "payment_method", "Risk Score", "Decision Tier", "Hold Status"]]
         st.dataframe(
-            filtered[display_cols].style.format({"amount_inr": "₹{:,.2f}"}),
+            display_df.style.format({"amount_inr": "₹{:,.2f}"}),
             use_container_width=True,
-            height=400,
+            height=450,
         )
 
-        # Batch Export
-        csv_data = filtered.to_csv(index=False).encode('utf-8')
+        csv_data = sample_batch.to_csv(index=False).encode('utf-8')
         st.download_button(
-            "📥 Export Enriched Pre-Settlement Risk Batch (CSV)",
+            "EXPORT BATCH TERMINAL DATA (CSV)",
             data=csv_data,
-            file_name="chargeshield_pre_settlement_batch.csv",
+            file_name="chargeshield_batch_queue.csv",
             mime="text/csv",
         )
 
 
 # =============================================================================
-# TAB 4: DISPUTE EVIDENCE STUDIO
+# VIEW 4: DISPUTE ARBITRATION STUDIO
 # =============================================================================
-with tab4:
-    st.markdown("### ⚖️ Automated Dispute Evidence Package Generator")
-    st.caption("When a chargeback is received from Visa, Mastercard, or NPCI, auto-compile a comprehensive representment defense packet with cryptographic 2FA proofs, delivery audit logs, and compelling stance arguments.")
+elif selected_view == "04 // DISPUTE ARBITRATION STUDIO":
+    st.markdown(f"""
+    <div class='md-hero-container' style='padding:32px 36px;'>
+      <span class='md-chip'>{icon_svg("scale", 14, "#49454F")} Dispute Defense Engine</span>
+      <div class='md-hero-title' style='font-size:2.4rem;'>Dispute Arbitration Studio</div>
+      <div class='md-hero-sub'>Automated representment defense packages compiled in compliance with Visa Compelling Evidence 3.0 and NPCI dispute non-repudiation frameworks.</div>
+    </div>
+    """, unsafe_allow_html=True)
 
     if not df_test.empty and dispute_gen is not None:
-        chargebacks_in_test = df_test[df_test["is_chargeback"] == 1].head(15)
+        chargebacks_list = df_test[df_test["is_chargeback"] == 1].head(10)
 
-        txn_choice = st.selectbox(
-            "Select a Contested Chargeback Case to Generate Arbitration Packet:",
-            options=range(len(chargebacks_in_test)),
-            format_func=lambda i: f"Case {i+1}: {chargebacks_in_test.iloc[i]['transaction_id']} | ₹{chargebacks_in_test.iloc[i]['amount_inr']:,.2f} | {chargebacks_in_test.iloc[i]['fraud_archetype']} | {chargebacks_in_test.iloc[i]['merchant_name']}",
+        case_idx = st.selectbox(
+            "SELECT CONTESTED CASE TO COMPILE REPRESENTMENT DOSSIER:",
+            options=range(len(chargebacks_list)),
+            format_func=lambda i: f"CASE {i+1}: {chargebacks_list.iloc[i]['transaction_id']} | ₹{chargebacks_list.iloc[i]['amount_inr']:,.2f} | {chargebacks_list.iloc[i]['fraud_archetype']} | {chargebacks_list.iloc[i]['merchant_name']}",
         )
 
-        selected_record = chargebacks_in_test.iloc[txn_choice].to_dict()
+        selected_record = chargebacks_list.iloc[case_idx].to_dict()
         packet = dispute_gen.generate_packet(selected_record)
         html_packet = dispute_gen.format_html_packet(packet)
 
-        # Case Readiness Bar
-        score = packet["case_readiness_score"]
-        tier = packet["case_readiness_tier"]
+        d1, d2, d3 = st.columns([1.2, 1.8, 1.0])
+        with d1:
+            st.markdown(f"""
+            <div class='md-metric-card'>
+              <div class='md-metric-label'>{icon_svg("shield", 14, "#6750A4")} Case Readiness Score</div>
+              <div class='md-metric-val'>{packet['case_readiness_score']}%</div>
+              <div class='md-metric-sub'>{packet['case_readiness_tier']} Arbitration Stance</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-        dc1, dc2, dc3 = st.columns([1.2, 1.8, 1.2])
-        with dc1:
-            st.metric("Case Readiness Index", f"{score}%", f"{tier} ARBITRATION STANCE")
-        with dc2:
-            st.markdown(f"**Recommended Stance:** {packet['recommended_dispute_stance']['stance_title']}")
-            st.caption(f"Governing Rule: {packet['recommended_dispute_stance']['compelling_evidence_rule']}")
-        with dc3:
+        with d2:
+            st.markdown(f"""
+            <div class='md-card' style='padding:20px; height:100%; margin:0;'>
+              <span class='md-chip'>{icon_svg("scale", 14, "#49454F")} Governing Representment Rule</span>
+              <div style='font-size:16px; font-weight:700; color:#1C1B1F; margin:6px 0 4px 0;'>{packet['recommended_dispute_stance']['stance_title']}</div>
+              <div style='font-size:12px; color:#49454F;'>{packet['recommended_dispute_stance']['compelling_evidence_rule']}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with d3:
             st.download_button(
-                "📄 Download Official Dispute Packet (HTML)",
+                "DOWNLOAD DOSSIER (HTML)",
                 data=html_packet,
-                file_name=f"chargeshield_dispute_{packet['dispute_id']}.html",
+                file_name=f"chargeshield_dossier_{packet['dispute_id']}.html",
                 mime="text/html",
             )
             st.download_button(
-                "💾 Export Evidence JSON Payload",
+                "EXPORT JSON PAYLOAD",
                 data=json.dumps(packet, indent=2),
-                file_name=f"chargeshield_dispute_{packet['dispute_id']}.json",
+                file_name=f"chargeshield_dossier_{packet['dispute_id']}.json",
                 mime="application/json",
             )
 
-        st.markdown("---")
-        st.markdown("#### 📜 Dispute Evidence Document Preview")
+        st.markdown("<div style='margin-bottom: 24px;'></div>", unsafe_allow_html=True)
+        st.markdown(f"<span class='md-chip'>{icon_svg('file_text', 14, '#49454F')} Official Evidence Dossier Preview</span>", unsafe_allow_html=True)
         st.components.v1.html(html_packet, height=650, scrolling=True)
 
 
 # =============================================================================
-# TAB 5: ML ANALYTICS & THRESHOLD OPTIMIZER
+# VIEW 5: MATHEMATICAL BENCHMARKS & COST MATRIX
 # =============================================================================
-with tab5:
-    st.markdown("### 📈 ML Performance & Interactive Financial Cost Optimizer")
-    st.caption("Interact with the operational decision threshold slider to see the live trade-off between prevented chargeback fraud loss (₹) and merchant false positive friction (₹).")
+elif selected_view == "05 // MATHEMATICAL BENCHMARKS":
+    st.markdown(f"""
+    <div class='md-hero-container' style='padding:32px 36px;'>
+      <span class='md-chip'>{icon_svg("trending", 14, "#49454F")} Empirical Verification</span>
+      <div class='md-hero-title' style='font-size:2.4rem;'>Mathematical Benchmarks & Cost Matrix</div>
+      <div class='md-hero-sub'>Rigorous held-out test evaluation, cost curve optimization, and interactive threshold slider demonstrating financial loss minimization.</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    if eval_metrics and trainer is not None and not df_test.empty:
+    if eval_metrics and trainer is not None:
         opt_profile = trainer.threshold_optimizer.threshold_profile
         all_curves = opt_profile.get("all_threshold_curves", [])
 
         if all_curves:
             curve_df = pd.DataFrame(all_curves)
-
-            # Interactive threshold slider
             current_opt_thresh = float(opt_profile.get("optimal_threshold", 0.11))
+
             user_thresh = st.slider(
-                "🎚️ Drag Operational Decision Threshold (T):",
+                "OPERATIONAL DECISION THRESHOLD (T):",
                 min_value=0.01,
                 max_value=0.99,
                 value=current_opt_thresh,
                 step=0.01,
             )
 
-            # Find closest profile
             closest_idx = (curve_df["threshold"] - user_thresh).abs().idxmin()
             curr_row = curve_df.iloc[closest_idx]
 
-            sc1, sc2, sc3, sc4 = st.columns(4)
-            sc1.metric("Precision", f"{curr_row['precision']:.1%}")
-            sc2.metric("Recall (Detection)", f"{curr_row['recall']:.1%}")
-            sc3.metric("False Positive Rate", f"{curr_row['fpr']:.2%}")
-            sc4.metric("Total Merchant Loss (₹)", f"₹{curr_row['total_cost_inr']:,.0f}")
+            m1, m2, m3, m4 = st.columns(4)
+            with m1:
+                st.markdown(f"""
+                <div class='md-metric-card'>
+                  <div class='md-metric-label'>{icon_svg("check_circle", 14, "#6750A4")} Precision</div>
+                  <div class='md-metric-val'>{curr_row['precision']:.1%}</div>
+                  <div class='md-metric-sub'>TP / (TP + FP)</div>
+                </div>
+                """, unsafe_allow_html=True)
 
-            # Plot Loss Curve vs Friction
+            with m2:
+                st.markdown(f"""
+                <div class='md-metric-card'>
+                  <div class='md-metric-label'>{icon_svg("activity", 14, "#6750A4")} Recall (Detection)</div>
+                  <div class='md-metric-val'>{curr_row['recall']:.1%}</div>
+                  <div class='md-metric-sub'>TP / (TP + FN)</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with m3:
+                st.markdown(f"""
+                <div class='md-metric-card'>
+                  <div class='md-metric-label'>{icon_svg("lock", 14, "#6750A4")} False Positive Rate</div>
+                  <div class='md-metric-val'>{curr_row['fpr']:.2%}</div>
+                  <div class='md-metric-sub'>Strictly Capped &lt; 2.5%</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with m4:
+                st.markdown(f"""
+                <div class='md-metric-card'>
+                  <div class='md-metric-label'>{icon_svg("trending", 14, "#6750A4")} Net Loss at Threshold</div>
+                  <div class='md-metric-val'>₹{curr_row['total_cost_inr']:,.0f}</div>
+                  <div class='md-metric-sub'>Saved: ₹{curr_row['prevented_loss_inr']:,.0f}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            st.markdown("<div style='margin-bottom: 24px;'></div>", unsafe_allow_html=True)
+
+            # High-Contrast Material You Financial Loss Plot
             fig_cost = go.Figure()
-            fig_cost.add_trace(go.Scatter(x=curve_df["threshold"], y=curve_df["total_cost_inr"], name="Total Expected Merchant Loss (₹)", line=dict(color="#EF4444", width=3)))
-            fig_cost.add_trace(go.Scatter(x=curve_df["threshold"], y=curve_df["prevented_loss_inr"], name="Prevented Fraud Loss (₹)", line=dict(color="#10B981", width=2)))
-            fig_cost.add_trace(go.Scatter(x=curve_df["threshold"], y=curve_df["fp_friction_inr"], name="Customer Friction Cost (₹)", line=dict(color="#F59E0B", width=2, dash="dot")))
+            fig_cost.add_trace(go.Scatter(x=curve_df["threshold"], y=curve_df["total_cost_inr"], name="Total Expected Loss (₹)", line=dict(color="#6750A4", width=3.5)))
+            fig_cost.add_trace(go.Scatter(x=curve_df["threshold"], y=curve_df["prevented_loss_inr"], name="Prevented Fraud Loss (₹)", line=dict(color="#146C2E", width=2.5, dash="dash")))
+            fig_cost.add_trace(go.Scatter(x=curve_df["threshold"], y=curve_df["fp_friction_inr"], name="Customer Friction Cost (₹)", line=dict(color="#BA1A1A", width=2, dash="dot")))
 
-            fig_cost.add_vline(x=user_thresh, line_width=2, line_dash="dash", line_color="#FFFFFF", annotation_text=f"T={user_thresh:.2f}")
+            fig_cost.add_vline(x=user_thresh, line_width=2, line_dash="solid", line_color="#6750A4", annotation_text=f"Selected T={user_thresh:.2f}", annotation_font=dict(family="Roboto", size=12, color="#6750A4"))
 
             fig_cost.update_layout(
-                title="Financial Loss Optimization Curve (Minimizing ₹ Lost)",
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                font={"color": "#CBD5E1"},
-                xaxis=dict(gridcolor="#1E293B", title="Decision Threshold (T)"),
-                yaxis=dict(gridcolor="#1E293B", title="Indian Rupees (₹ INR)"),
-                legend=dict(orientation="h", yanchor="bottom", y=-0.25, xanchor="center", x=0.5),
-                margin=dict(t=40, b=40, l=20, r=20),
+                title=dict(text="Total Expected Loss Curve (₹ INR) vs Operational Threshold", font=dict(family="Roboto", size=17, color="#1C1B1F", weight="bold")),
+                paper_bgcolor="#FFFFFF",
+                plot_bgcolor="#FFFFFF",
+                font=dict(color="#1C1B1F", family="Roboto", size=12),
+                xaxis=dict(
+                    gridcolor="#E7E0EC",
+                    title=dict(text="Decision Threshold (T)", font=dict(color="#1C1B1F", size=13, family="Roboto")),
+                    tickfont=dict(color="#1C1B1F", size=11, family="Roboto"),
+                    linecolor="#79747E",
+                    zerolinecolor="#CAC4D0",
+                    showgrid=True,
+                    showline=True,
+                ),
+                yaxis=dict(
+                    gridcolor="#E7E0EC",
+                    title=dict(text="Financial Impact (₹ INR)", font=dict(color="#1C1B1F", size=13, family="Roboto")),
+                    tickfont=dict(color="#1C1B1F", size=11, family="Roboto"),
+                    linecolor="#79747E",
+                    zerolinecolor="#CAC4D0",
+                    showgrid=True,
+                    showline=True,
+                ),
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=-0.28,
+                    xanchor="center",
+                    x=0.5,
+                    font=dict(color="#1C1B1F", size=12, family="Roboto"),
+                    bgcolor="#F3EDF7",
+                    bordercolor="#CAC4D0",
+                    borderwidth=1,
+                ),
+                margin=dict(t=40, b=50, l=50, r=30),
             )
-            st.plotly_chart(fig_cost, use_container_width=True)
+            st.plotly_chart(fig_cost, use_container_width=True, theme=None)
 
-        st.markdown("---")
-        mc1, mc2 = st.columns(2)
+        st.markdown("<div style='margin-bottom: 24px;'></div>", unsafe_allow_html=True)
 
-        with mc1:
-            st.markdown("#### 📉 ROC Curve (Held-Out Test)")
+        col_roc, col_pr = st.columns(2)
+        with col_roc:
             roc_sample = eval_metrics.get("roc_curve_sample", {})
             if roc_sample:
                 fig_roc = go.Figure()
-                fig_roc.add_trace(go.Scatter(x=roc_sample["fpr"], y=roc_sample["tpr"], name="ChargeShield XGBoost+IF", line=dict(color="#3B82F6", width=3)))
-                fig_roc.add_trace(go.Scatter(x=[0, 1], y=[0, 1], name="Random Baseline", line=dict(color="#64748B", dash="dash")))
+                fig_roc.add_trace(go.Scatter(x=roc_sample["fpr"], y=roc_sample["tpr"], name="ChargeShield Hybrid Model", line=dict(color="#6750A4", width=3)))
+                fig_roc.add_trace(go.Scatter(x=[0, 1], y=[0, 1], name="Random Guess", line=dict(color="#79747E", dash="dash")))
                 fig_roc.update_layout(
-                    title=f"ROC-AUC: {eval_metrics['metrics']['roc_auc']:.4f}",
-                    paper_bgcolor="rgba(0,0,0,0)",
-                    plot_bgcolor="rgba(0,0,0,0)",
-                    font={"color": "#CBD5E1"},
-                    xaxis=dict(gridcolor="#1E293B", title="False Positive Rate"),
-                    yaxis=dict(gridcolor="#1E293B", title="True Positive Rate"),
-                    margin=dict(t=40, b=20, l=20, r=20),
+                    title=dict(text=f"ROC Curve (AUC: {eval_metrics['metrics']['roc_auc']:.4f})", font=dict(family="Roboto", size=16, color="#1C1B1F", weight="bold")),
+                    paper_bgcolor="#FFFFFF",
+                    plot_bgcolor="#FFFFFF",
+                    font=dict(color="#1C1B1F", family="Roboto", size=12),
+                    xaxis=dict(
+                        gridcolor="#E7E0EC",
+                        title=dict(text="False Positive Rate", font=dict(color="#1C1B1F", size=12)),
+                        tickfont=dict(color="#1C1B1F", size=11),
+                        linecolor="#79747E",
+                        showgrid=True,
+                        showline=True,
+                    ),
+                    yaxis=dict(
+                        gridcolor="#E7E0EC",
+                        title=dict(text="True Positive Rate", font=dict(color="#1C1B1F", size=12)),
+                        tickfont=dict(color="#1C1B1F", size=11),
+                        linecolor="#79747E",
+                        showgrid=True,
+                        showline=True,
+                    ),
+                    margin=dict(t=40, b=20, l=40, r=20),
                 )
-                st.plotly_chart(fig_roc, use_container_width=True)
+                st.plotly_chart(fig_roc, use_container_width=True, theme=None)
 
-        with mc2:
-            st.markdown("#### 🎯 Precision-Recall Curve")
+        with col_pr:
             pr_sample = eval_metrics.get("pr_curve_sample", {})
             if pr_sample:
                 fig_pr = go.Figure()
-                fig_pr.add_trace(go.Scatter(x=pr_sample["recall"], y=pr_sample["precision"], name="PR Curve", line=dict(color="#10B981", width=3)))
+                fig_pr.add_trace(go.Scatter(x=pr_sample["recall"], y=pr_sample["precision"], name="Precision-Recall Curve", line=dict(color="#6750A4", width=3)))
                 fig_pr.update_layout(
-                    title=f"PR-AUC (Average Precision): {eval_metrics['metrics']['pr_auc']:.4f}",
-                    paper_bgcolor="rgba(0,0,0,0)",
-                    plot_bgcolor="rgba(0,0,0,0)",
-                    font={"color": "#CBD5E1"},
-                    xaxis=dict(gridcolor="#1E293B", title="Recall"),
-                    yaxis=dict(gridcolor="#1E293B", title="Precision"),
-                    margin=dict(t=40, b=20, l=20, r=20),
+                    title=dict(text=f"Precision-Recall Curve (PR-AUC: {eval_metrics['metrics']['pr_auc']:.4f})", font=dict(family="Roboto", size=16, color="#1C1B1F", weight="bold")),
+                    paper_bgcolor="#FFFFFF",
+                    plot_bgcolor="#FFFFFF",
+                    font=dict(color="#1C1B1F", family="Roboto", size=12),
+                    xaxis=dict(
+                        gridcolor="#E7E0EC",
+                        title=dict(text="Recall", font=dict(color="#1C1B1F", size=12)),
+                        tickfont=dict(color="#1C1B1F", size=11),
+                        linecolor="#79747E",
+                        showgrid=True,
+                        showline=True,
+                    ),
+                    yaxis=dict(
+                        gridcolor="#E7E0EC",
+                        title=dict(text="Precision", font=dict(color="#1C1B1F", size=12)),
+                        tickfont=dict(color="#1C1B1F", size=11),
+                        linecolor="#79747E",
+                        showgrid=True,
+                        showline=True,
+                    ),
+                    margin=dict(t=40, b=20, l=40, r=20),
                 )
-                st.plotly_chart(fig_pr, use_container_width=True)
+                st.plotly_chart(fig_pr, use_container_width=True, theme=None)
