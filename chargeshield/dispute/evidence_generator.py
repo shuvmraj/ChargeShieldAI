@@ -14,9 +14,21 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
+import numpy as np
+import pandas as pd
+
+
+def _safe_str(val: Any, default: str = "") -> str:
+    if val is None:
+        return default
+    s = str(val).strip()
+    if s.lower() in ("nan", "none", "null", "<na>"):
+        return default
+    return s
+
 
 class DisputeEvidenceGenerator:
-    """Generates dispute evidence packages for Razorpay merchant chargeback representment."""
+    """Generates dispute evidence packages for digital merchant chargeback representment."""
 
     def __init__(self) -> None:
         pass
@@ -27,44 +39,44 @@ class DisputeEvidenceGenerator:
         dispute_metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Compiles a complete dispute defense package for a contested chargeback transaction."""
-        txn_id = txn_data.get("transaction_id", f"pay_{uuid.uuid4().hex[:14]}")
-        dispute_id = dispute_metadata.get("dispute_id", f"disp_{uuid.uuid4().hex[:12]}") if dispute_metadata else f"disp_{uuid.uuid4().hex[:12]}"
-        amount_inr = float(txn_data.get("amount_inr", 0.0))
-        dispute_reason = txn_data.get("dispute_reason", "10.4 - Other Fraud / Card Absent")
-        payment_method = txn_data.get("payment_method", "credit_card")
-        rrn_utr = txn_data.get("rrn_utr", f"RRN{uuid.uuid4().int % 1000000000000:012d}")
-        timestamp_str = str(txn_data.get("timestamp", datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+        txn_id = _safe_str(txn_data.get("transaction_id"), f"pay_{uuid.uuid4().hex[:14]}")
+        dispute_id = _safe_str(dispute_metadata.get("dispute_id") if dispute_metadata else None, f"disp_{uuid.uuid4().hex[:12]}")
+        amount_inr = float(txn_data.get("amount_inr", 0.0) or 0.0)
+        dispute_reason = _safe_str(txn_data.get("dispute_reason"), "10.4 - Other Fraud / Card Absent")
+        payment_method = _safe_str(txn_data.get("payment_method"), "credit_card")
+        rrn_utr = _safe_str(txn_data.get("rrn_utr"), f"RRN{uuid.uuid4().int % 1000000000000:012d}")
+        timestamp_str = _safe_str(txn_data.get("timestamp"), datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
         # 1. Forensic Authentication Proofs
-        is_upi = payment_method == "upi"
-        has_3ds = payment_method in ["credit_card", "debit_card"]
-        three_ds_version = txn_data.get("three_ds_version", "2.2.0" if has_3ds else "N/A")
+        is_upi = payment_method.lower() == "upi"
+        has_3ds = payment_method.lower() in ["credit_card", "debit_card"]
+        three_ds_version = _safe_str(txn_data.get("three_ds_version"), "2.2.0" if has_3ds else "N/A")
         auth_protocol = "NPCI UPI 2FA PIN Authenticated" if is_upi else f"EMV 3DS {three_ds_version} (OTP Authenticated)"
         cavv_eci = "ECI 05 / Full Liability Shift to Issuing Bank" if has_3ds else "NPCI Signed Cryptographic Token Verified"
 
         # 2. Telemetry & Identity Alignment Analysis
-        ip_addr = txn_data.get("ip_address", "103.21.244.18")
-        isp_name = txn_data.get("isp_name", "Bharti Airtel Ltd")
-        asn_code = txn_data.get("asn_code", "AS45609")
-        ip_city = txn_data.get("ip_city", "Bengaluru")
-        shipping_city = txn_data.get("shipping_city", "Bengaluru")
-        shipping_pincode = txn_data.get("shipping_pincode", "560001")
-        device_id = txn_data.get("device_id", f"dev_{uuid.uuid4().hex[:12]}")
-        session_sec = txn_data.get("session_duration_sec", 185)
+        ip_addr = _safe_str(txn_data.get("ip_address"), "103.21.244.18")
+        isp_name = _safe_str(txn_data.get("isp_name"), "Bharti Airtel Ltd")
+        asn_code = _safe_str(txn_data.get("asn_code"), "AS45609")
+        ip_city = _safe_str(txn_data.get("ip_city"), "Bengaluru")
+        shipping_city = _safe_str(txn_data.get("shipping_city"), "Bengaluru")
+        shipping_pincode = _safe_str(txn_data.get("shipping_pincode"), "560001")
+        device_id = _safe_str(txn_data.get("device_id"), f"dev_{uuid.uuid4().hex[:12]}")
+        session_sec = int(txn_data.get("session_duration_sec", 185) or 185)
 
         is_ip_matched = (ip_city.strip().lower() == shipping_city.strip().lower())
         is_vpn = bool(txn_data.get("is_vpn_proxy", False))
 
         # 3. Fulfillment & Proof of Delivery
-        delivery_awb = txn_data.get("delivery_awb", f"AWB_{uuid.uuid4().int % 10000000000:010d}")
-        courier = txn_data.get("courier_partner", "BlueDart Express")
-        delivery_status = txn_data.get("delivery_status", "DELIVERED_POD_CONFIRMED")
-        delivery_timestamp = txn_data.get("delivery_timestamp", (datetime.strptime(timestamp_str[:19], "%Y-%m-%d %H:%M:%S") + timedelta(days=2)).strftime("%Y-%m-%d %H:%M:%S") if len(timestamp_str) >= 19 else "2026-06-15 14:30:00")
+        delivery_awb = _safe_str(txn_data.get("delivery_awb"), f"AWB_{uuid.uuid4().int % 10000000000:010d}")
+        courier = _safe_str(txn_data.get("courier_partner"), "BlueDart Express")
+        delivery_status = _safe_str(txn_data.get("delivery_status"), "DELIVERED_POD_CONFIRMED")
+        delivery_timestamp = _safe_str(txn_data.get("delivery_timestamp"), (datetime.strptime(timestamp_str[:19], "%Y-%m-%d %H:%M:%S") + timedelta(days=2)).strftime("%Y-%m-%d %H:%M:%S") if len(timestamp_str) >= 19 else "2026-06-15 14:30:00")
 
         # 4. Merchant Policy & Contractual Acceptance
-        terms_timestamp = txn_data.get("terms_accepted_timestamp", timestamp_str)
-        merchant_name = txn_data.get("merchant_name", "Verified Merchant Partner")
-        merchant_category = txn_data.get("merchant_category", "electronics_gadgets")
+        terms_timestamp = _safe_str(txn_data.get("terms_accepted_timestamp"), timestamp_str)
+        merchant_name = _safe_str(txn_data.get("merchant_name"), "Verified Merchant Partner")
+        merchant_category = _safe_str(txn_data.get("merchant_category"), "electronics_gadgets")
 
         # 5. Calculate Case Readiness Score (0 - 100%)
         readiness_score, score_breakdown = self._calculate_readiness_score(
@@ -92,12 +104,12 @@ class DisputeEvidenceGenerator:
                 "amount_inr": amount_inr,
                 "currency": "INR",
                 "payment_method": payment_method.upper(),
-                "card_network": txn_data.get("card_network", "RUPAY/VISA").upper() if not is_upi else "N/A",
-                "upi_vpa": txn_data.get("upi_vpa", "N/A") if is_upi else "N/A",
-                "merchant_id": txn_data.get("merchant_id", "mid_0001"),
+                "card_network": _safe_str(txn_data.get("card_network"), "RUPAY/VISA").upper() if not is_upi else "N/A",
+                "upi_vpa": _safe_str(txn_data.get("upi_vpa"), "N/A") if is_upi else "N/A",
+                "merchant_id": _safe_str(txn_data.get("merchant_id"), "mid_0001"),
                 "merchant_name": merchant_name,
                 "merchant_category": merchant_category.replace("_", " ").title(),
-                "customer_user_id": txn_data.get("user_id", "usr_0001"),
+                "customer_user_id": _safe_str(txn_data.get("user_id"), "usr_0001"),
             },
             "dispute_claim_details": {
                 "dispute_reason": dispute_reason,
