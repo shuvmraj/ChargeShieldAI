@@ -12,7 +12,13 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-import shap
+
+try:
+    import shap
+    HAS_SHAP = True
+except ImportError:
+    shap = None
+    HAS_SHAP = False
 
 from chargeshield.models.model_trainer import ChargeShieldModelTrainer
 
