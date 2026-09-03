@@ -124,18 +124,79 @@ p, span, div, li, [data-testid="stMarkdownContainer"] p {
     #FFFBFE !important;
 }
 
-/* Main Container Layout */
-.main .block-container {
-  max-width: 1200px !important;
-  padding-top: 1.5rem !important;
-  padding-bottom: 5rem !important;
-  padding-left: 2rem !important;
-  padding-right: 2rem !important;
+/* Remove Top Blank Space Completely */
+[data-testid="stAppViewContainer"] {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
 }
 
-/* Navigation Pill Buttons inside Streamlit */
-.stButton > button[kind="primary"], 
+.main, [data-testid="stAppViewContainer"] > .main {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+.main .block-container,
+[data-testid="stAppViewContainer"] .main .block-container,
+[data-testid="stMainBlockContainer"],
+div[data-testid="stVerticalBlockRoot"] {
+  max-width: 1200px !important;
+  padding-top: 0.5rem !important;
+  padding-bottom: 4rem !important;
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+  margin-top: 0 !important;
+}
+
+div[data-testid="stVerticalBlock"]:first-child,
+div[data-testid="stVerticalBlockRoot"] > div:first-child {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Minimalist Text Navigation Tabs (Underline Active State) */
+div[data-testid="stHorizontalBlock"] .stButton > button {
+  background: transparent !important;
+  border-radius: 0px !important;
+  border: none !important;
+  border-bottom: 2.5px solid transparent !important;
+  font-family: var(--md-font-sans) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.03em !important;
+  padding: 6px 12px !important;
+  height: 38px !important;
+  transition: all 180ms ease !important;
+  box-shadow: none !important;
+  margin-top: 4px !important;
+}
+
 div[data-testid="stHorizontalBlock"] .stButton > button[kind="primary"] {
+  background: transparent !important;
+  color: var(--md-sys-color-primary) !important;
+  border-bottom: 2.5px solid var(--md-sys-color-primary) !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+}
+
+div[data-testid="stHorizontalBlock"] .stButton > button[kind="secondary"] {
+  background: transparent !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  border-bottom: 2.5px solid transparent !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}
+
+div[data-testid="stHorizontalBlock"] .stButton > button[kind="secondary"]:hover {
+  background: transparent !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border-bottom: 2.5px solid var(--md-sys-color-outline-variant) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* General Action Buttons elsewhere in the app (Pill shaped) */
+.main .stButton > button[kind="primary"]:not(div[data-testid="stHorizontalBlock"] *),
+.stButton > button:not(div[data-testid="stHorizontalBlock"] *) {
   background: var(--md-sys-color-primary) !important;
   color: var(--md-sys-color-on-primary) !important;
   border-radius: var(--md-radius-full) !important;
@@ -144,38 +205,10 @@ div[data-testid="stHorizontalBlock"] .stButton > button[kind="primary"] {
   font-size: 13px !important;
   font-weight: 700 !important;
   letter-spacing: 0.01em !important;
-  padding: 8px 18px !important;
+  padding: 8px 20px !important;
   height: 42px !important;
   transition: all var(--md-duration) var(--md-easing) !important;
   box-shadow: 0 4px 12px rgba(103, 80, 164, 0.28) !important;
-}
-
-.stButton > button[kind="secondary"], 
-div[data-testid="stHorizontalBlock"] .stButton > button[kind="secondary"] {
-  background: var(--md-sys-color-secondary-container) !important;
-  color: var(--md-sys-color-on-secondary-container) !important;
-  border-radius: var(--md-radius-full) !important;
-  border: none !important;
-  font-family: var(--md-font-sans) !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.01em !important;
-  padding: 8px 18px !important;
-  height: 42px !important;
-  transition: all var(--md-duration) var(--md-easing) !important;
-  box-shadow: none !important;
-}
-
-.stButton > button[kind="secondary"]:hover, 
-div[data-testid="stHorizontalBlock"] .stButton > button[kind="secondary"]:hover {
-  background: #DDD3ED !important;
-  color: #1D192B !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 2px 8px rgba(103, 80, 164, 0.12) !important;
-}
-
-.stButton > button:active {
-  transform: scale(0.96) !important;
 }
 
 /* Download Buttons - Material You Primary Purple Pills */

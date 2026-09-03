@@ -100,23 +100,18 @@ df_raw, df_test, eval_metrics = load_data()
 
 
 # -----------------------------------------------------------------------------
-# Material You Top Horizontal Navbar
+# Material You Top Minimalist Underline Navbar
 # -----------------------------------------------------------------------------
 if "current_nav" not in st.session_state:
     st.session_state.current_nav = "01 // HOME & OVERVIEW"
 
-col_brand, col_nav1, col_nav2, col_nav3, col_nav4, col_nav5 = st.columns([2.0, 1.0, 1.1, 1.0, 1.1, 1.1])
+col_brand, col_nav1, col_nav2, col_nav3, col_nav4, col_nav5 = st.columns([2.4, 0.85, 0.95, 0.85, 0.95, 0.95])
 
 with col_brand:
     st.markdown("""
-    <div style='display:flex; align-items:center; gap:10px; height:42px;'>
-      <div style='background:#6750A4; color:#FFFFFF; width:36px; height:36px; border-radius:9999px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(103,80,164,0.3);'>
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
-      </div>
-      <div>
-        <div style='font-size:17px; font-weight:700; color:#1C1B1F; letter-spacing:-0.01em; line-height:1;'>ChargeShield AI</div>
-        <div style='font-size:11px; color:#49454F; font-weight:500; margin-top:2px;'>Pre-Settlement Defense</div>
-      </div>
+    <div style='padding: 2px 0;'>
+      <div style='font-size:24px; font-weight:900; color:#1C1B1F; letter-spacing:-0.02em; line-height:1.1;'>ChargeShield AI</div>
+      <div style='font-size:13.5px; color:#49454F; font-weight:500; margin-top:3px; letter-spacing:0.01em;'>Pre-Settlement Defense</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -146,7 +141,7 @@ with col_nav5:
         st.rerun()
 
 selected_view = st.session_state.current_nav
-st.markdown("<div style='margin-bottom: 24px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='border-bottom: 1.5px solid #E7E0EC; margin: 8px 0 28px 0;'></div>", unsafe_allow_html=True)
 
 
 # =============================================================================
