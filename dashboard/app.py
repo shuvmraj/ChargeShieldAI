@@ -706,7 +706,7 @@ elif selected_view == "03 // PRE-SETTLEMENT QUEUE":
 
         csv_data = sample_batch.to_csv(index=False).encode('utf-8')
         st.download_button(
-            "EXPORT BATCH TERMINAL DATA (CSV)",
+            "Export Batch Data (CSV)",
             data=csv_data,
             file_name="chargeshield_batch_queue.csv",
             mime="text/csv",
@@ -759,14 +759,14 @@ elif selected_view == "04 // DISPUTE ARBITRATION STUDIO":
 
         with d3:
             st.download_button(
-                "📄 Download Dossier (HTML)",
+                "Download Dossier (HTML)",
                 data=html_packet,
                 file_name=f"chargeshield_dossier_{packet['dispute_id']}.html",
                 mime="text/html",
                 use_container_width=True,
             )
             st.download_button(
-                "📦 Export JSON Payload",
+                "Export JSON Payload",
                 data=json.dumps(packet, indent=2),
                 file_name=f"chargeshield_dossier_{packet['dispute_id']}.json",
                 mime="application/json",
