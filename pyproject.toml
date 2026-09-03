@@ -29,9 +29,16 @@ dependencies = [
     "faker>=24.0.0",
 ]
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["chargeshield*"]
+[tool.setuptools]
+packages = [
+    "chargeshield",
+    "chargeshield.api",
+    "chargeshield.data",
+    "chargeshield.dispute",
+    "chargeshield.explainability",
+    "chargeshield.features",
+    "chargeshield.models"
+]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
