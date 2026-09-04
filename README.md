@@ -125,50 +125,79 @@ Evaluated on **6,000 held-out test transactions** (strictly temporal, zero leaka
 
 ## 🚀 Quickstart & Setup Guide
 
-### 1. Prerequisites & Virtual Environment
+### ⚡ Instant Launch (Recommended)
+Use the included automated runner script, which detects your virtual environment automatically:
+```bash
+# Make executable (if needed)
+chmod +x run.sh
+
+# 1. Launch Streamlit Studio (Interactive Dashboard)
+./run.sh dashboard
+
+# 2. Or launch FastAPI Risk Engine Backend
+./run.sh api
+
+# 3. Or launch both services concurrently
+./run.sh all
+
+# 4. Run automated test suite
+./run.sh test
+```
+
+Streamlit Dashboard will be live at: [http://localhost:8501](http://localhost:8501)  
+FastAPI Swagger docs will be live at: [http://localhost:8000/docs](http://localhost:8000/docs)
+
+---
+
+### 📦 Manual Setup & Execution
+
+#### 1. Activate Virtual Environment & Install Dependencies
+> [!NOTE]
+> Always ensure your virtual environment is active before running CLI commands, or invoke the environment's binaries directly (e.g., `.venv/bin/streamlit`).
+
 ```bash
 # Clone the repository
 git clone https://github.com/shubhamraj/ChargeShieldAI.git
 cd ChargeShieldAI
 
-# Create Python 3.12 virtual environment
-python3.12 -m venv .venv
+# Activate virtual environment
 source .venv/bin/activate
 
-# Install dependencies
-pip install -r requirements.txt
+# (Optional) If setting up from scratch:
+# python3.12 -m venv .venv
+# source .venv/bin/activate
+# pip install -r requirements.txt
 ```
 
-### 2. Dataset Generation & Model Pipeline
+#### 2. Launching Streamlit Studio
 ```bash
-# 1. Generate 30,000 synthetic Indian transactions
-python scripts/generate_data.py --num-txns 30000
-
-# 2. Train XGBoost + Isolation Forest hybrid model
-python scripts/train.py
-
-# 3. Evaluate honestly on held-out test data
-python scripts/evaluate.py
-```
-
-### 3. Launching the Interactive Streamlit Dashboard
-```bash
-# Launch Streamlit Studio
+# With .venv activated:
 streamlit run dashboard/app.py
+
+# Or directly without activating:
+.venv/bin/streamlit run dashboard/app.py
 ```
 Open [http://localhost:8501](http://localhost:8501) in your browser.
 
-### 4. Launching the FastAPI Backend Server
+#### 3. Launching FastAPI Backend Server
 ```bash
-# Start FastAPI service on port 8000
+# With .venv activated:
 uvicorn chargeshield.api.main:app --host 0.0.0.0 --port 8000 --reload
-```
-Interactive Swagger API docs available at: [http://localhost:8000/docs](http://localhost:8000/docs)
 
-### 5. Running Automated Unit Tests
+# Or directly without activating:
+.venv/bin/python -m uvicorn chargeshield.api.main:app --host 0.0.0.0 --port 8000 --reload
+```
+Interactive Swagger API docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+
+#### 4. Running Automated Tests & Pipeline
 ```bash
 # Run pytest test suite (13/13 passing)
-pytest -v tests/
+.venv/bin/pytest -v tests/
+
+# Optional: Regenerate dataset & retrain models
+python scripts/generate_data.py --num-txns 30000
+python scripts/train.py
+python scripts/evaluate.py
 ```
 
 ---
@@ -302,6 +331,7 @@ ChargeShieldAI/
 ├── evaluation_report.md            # Generated held-out test evaluation report
 ├── requirements.txt
 ├── pyproject.toml
+├── run.sh                          # Automated CLI runner script
 └── README.md
 ```
 
